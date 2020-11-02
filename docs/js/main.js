@@ -917,13 +917,22 @@ onload = function() {
         "search": true
     }); //"placeHolder": "Surface" translations: { "items": "tab" } "maxWidth": 140
 
-
+    let unloaded = false;
     window.addEventListener('beforeunload', function(e) {
         if (document.getElementById('reload_button').textContent === "ON") {
             // Cancel the event
             e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
             // Chrome requires returnValue to be set
             e.returnValue = '';
+        }
+    });
+    window.addEventListener("visibilitychange", function(e) {
+        if (document.getElementById('reload_button').textContent === "ON") {
+            if (document.visibilityState == 'hidden') {
+                if (unloaded)
+                    return;
+                unloaded = true;
+            }
         }
     });
 };
