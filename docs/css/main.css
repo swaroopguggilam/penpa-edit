@@ -425,7 +425,7 @@ input[type="radio"]:checked+label {
     box-shadow: 0 0 0 1px orange;
 }
 
-input[type='text'] {
+body input, body textarea {
     -webkit-touch-callout: text;
     -webkit-user-select: text;
     user-select: text;
