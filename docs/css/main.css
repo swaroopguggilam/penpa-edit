@@ -425,6 +425,10 @@ input[type="radio"]:checked+label {
     box-shadow: 0 0 0 1px orange;
 }
 
+input[type='text'] {
+    -webkit-user-select: text;
+}
+
 #panel_button0,
 #visibility_button0,
 #edge_button0,
