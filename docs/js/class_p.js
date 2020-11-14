@@ -733,6 +733,42 @@ class Puzzle {
             case "special":
                 this[this.mode.qa][this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0]] = [];
                 break;
+            case "combi":
+                switch (this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0]) {
+                    case "tents":
+                        break;
+                    case "linex":
+                        break;
+                    case "edgexoi":
+                        break;
+                    case "blpo":
+                        break;
+                    case "blwh":
+                        break;
+                    case "battleship":
+                        break;
+                    case "star":
+                        break;
+                    case "magnets":
+                        break;
+                    case "lineox":
+                        break;
+                    case "yajilin":
+                        break;
+                    case "hashi":
+                        break;
+                    case "arrowS":
+                        break;
+                    case "shaka":
+                        break;
+                    case "numfl":
+                        break;
+                    case "alfl":
+                        break;
+                    case "edgesub":
+                        break;
+                }
+                break;
         }
         this.redraw();
     }
@@ -5930,31 +5966,31 @@ class Puzzle {
     set_redoundocolor() {
         if (this.mode.qa === "pu_q") {
             if (this.pu_q.command_redo.__a.length === 0) {
-                document.getElementById('tb_redo').style.color = '#ccc';
+                document.getElementById('tb_redo').style.color = Color.GREY_LIGHT;
             } else {
-                document.getElementById('tb_redo').style.color = '#000';
+                document.getElementById('tb_redo').style.color = Color.BLACK;
             }
             if (this.pu_q.command_undo.__a.length === 0) {
-                document.getElementById('tb_undo').style.color = '#ccc';
+                document.getElementById('tb_undo').style.color = Color.GREY_LIGHT;
             } else {
-                document.getElementById('tb_undo').style.color = '#000';
+                document.getElementById('tb_undo').style.color = Color.BLACK;
             }
         } else {
             if (this.pu_a.command_redo.__a.length === 0) {
-                document.getElementById('tb_redo').style.color = '#ccc';
+                document.getElementById('tb_redo').style.color = Color.GREY_LIGHT;
             } else {
-                document.getElementById('tb_redo').style.color = '#000';
+                document.getElementById('tb_redo').style.color = Color.BLACK;
             }
             if (this.pu_a.command_undo.__a.length === 0) {
-                document.getElementById('tb_undo').style.color = '#ccc';
+                document.getElementById('tb_undo').style.color = Color.GREY_LIGHT;
             } else {
-                document.getElementById('tb_undo').style.color = '#000';
+                document.getElementById('tb_undo').style.color = Color.BLACK;
             }
         }
     }
 
     flushcanvas() {
-        this.ctx.fillStyle = "white";
+        this.ctx.fillStyle = Color.WHITE;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -5996,8 +6032,8 @@ class Puzzle {
             if (this[pu].polygon[i][0]) {
                 this.ctx.setLineDash([]);
                 this.ctx.lineCap = "square";
-                this.ctx.strokeStyle = "#000";
-                this.ctx.fillStyle = "#000";
+                this.ctx.strokeStyle = Color.BLACK;
+                this.ctx.fillStyle = Color.BLACK;
                 this.ctx.lineWidth = 1;
                 this.ctx.beginPath();
                 this.ctx.moveTo(this.point[this[pu].polygon[i][0]].x, this.point[this[pu].polygon[i][0]].y);
@@ -6014,8 +6050,8 @@ class Puzzle {
         /*free_circle*/
         if (((this.mode[this.mode.qa].edit_mode === "line" || this.mode[this.mode.qa].edit_mode === "lineE") && this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "3") || this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "polygon") {
             this.ctx.setLineDash([]);
-            this.ctx.fillStyle = "rgba(0,0,0,0)";
-            this.ctx.strokeStyle = "#1e90ff";
+            this.ctx.fillStyle = Color.TRANSPARENTBLACK;
+            this.ctx.strokeStyle = Color.BLUE_LIGHT;
             this.ctx.lineWidth = 4;
             if (this.freelinecircle_g[0] != -1) {
                 this.draw_circle(this.ctx, this.point[this.freelinecircle_g[0]].x, this.point[this.freelinecircle_g[0]].y, 0.3);
@@ -6031,9 +6067,9 @@ class Puzzle {
         if (this.mode[this.mode.qa].edit_mode === "number" || this.mode[this.mode.qa].edit_mode === "symbol") {
             set_line_style(this.ctx, 99);
             if (this.mode[this.mode.qa].edit_mode === "symbol" && document.getElementById('panel_button').textContent === "ON" && !pu.onoff_symbolmode_list[pu.mode[this.mode.qa].symbol[0]]) {
-                this.ctx.strokeStyle = "#00008b";
+                this.ctx.strokeStyle = Color.BLUE_DARK_VERY;
             }
-            this.ctx.fillStyle = "rgba(0,0,0,0)";
+            this.ctx.fillStyle = Color.TRANSPARENTBLACK;
             if (this.mode[this.mode.qa].edit_mode === "number" && (this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "3" || this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "9")) {
                 this.draw_polygon(this.ctx, this.point[this.cursolS].x, this.point[this.cursolS].y, 0.2, 4, 45);
             } else if (document.getElementById('edge_button').textContent === "ON") {
@@ -6056,8 +6092,14 @@ class Puzzle {
             var text = JSON.stringify(this.make_solution());
             if (text === this.solution && this.sol_flag === 0) {
                 setTimeout(() => {
-                    alert("Correct Answer")
-                }, 10)
+                    Swal.fire({
+                        title: 'Swaroop says:',
+                        html: '<h2 style="color:blue;">Congratulations 🙂 Well done 🙂</h2>',
+                        icon: 'success',
+                        confirmButtonText: 'Hurray!',
+                        // timer: 5000
+                    })
+                }, 20)
                 sw_timer.stop();
                 this.mouse_mode = "out";
                 this.mouseevent(0, 0, 0);
@@ -6106,8 +6148,10 @@ class Puzzle {
                 for (var j = r_start; j < (size + r_start); j++) { //  row
                     for (var i = c_start; i < (size + c_start); i++) { // column
                         if (parseInt(digits[j - r_start + i - c_start + (j - r_start) * (size - 1)], 10) !== 0) {
-                            this.record("number", (i + 2) + ((j + 2) * this.nx0));
-                            this[this.mode.qa].number[(i + 2) + ((j + 2) * this.nx0)] = [digits[j - r_start + i - c_start + (j - r_start) * (this.nx - 1)], scolor, "1"];
+                            if (!this["pu_q"].number[(i + 2) + ((j + 2) * this.nx0)]) {
+                                this.record("number", (i + 2) + ((j + 2) * this.nx0));
+                                this[this.mode.qa].number[(i + 2) + ((j + 2) * this.nx0)] = [digits[j - r_start + i - c_start + (j - r_start) * (this.nx - 1)], scolor, "1"];
+                            }
                         }
                     }
                 }
