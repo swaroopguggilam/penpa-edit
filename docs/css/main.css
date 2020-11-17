@@ -114,7 +114,7 @@ hr.newgridhrline {
     font-size: 12px;
 }
 
-#nb_sudoku7_lb{
+#nb_sudoku7_lb {
     font-weight: bold;
 }
 
@@ -227,6 +227,34 @@ hr.newgridhrline {
 
 .labelL:hover {
     background: var(--greyLightVery);
+}
+
+#rt_center,
+#rt_size,
+#rt_reset,
+#rt_addtop,
+#rt_addbottom,
+#rt_addleft,
+#rt_addright,
+#rt_addtop_r,
+#rt_addbottom_r,
+#rt_addleft_r,
+#rt_addright_r,
+#rt_subtop,
+#rt_subbottom,
+#rt_subleft,
+#rt_subright,
+#rt_subtop_r,
+#rt_subbottom_r,
+#rt_subleft_r,
+#rt_subright_r {
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+#rt5_lb_r,
+#rt5_lb {
+    color: var(--red);
 }
 
 #st_number1_lb {
@@ -769,7 +797,7 @@ body textarea {
 #modal-content {
     background-color: var(--white);
     width: 300px;
-    height: 410px;
+    height: 420px;
     margin: 0 auto;
     margin-top: 15px;
     border-radius: 20px;
@@ -790,7 +818,7 @@ body textarea {
 #modal-newsize-content {
     background-color: var(--white);
     width: 300px;
-    height: 100px;
+    height: 270px;
     margin: 0 auto;
     margin-top: 40px;
     border-radius: 20px;
@@ -849,7 +877,7 @@ body textarea {
 #modal-rotate-content {
     background-color: var(--white);
     width: 300px;
-    height: 270px;
+    height: 380px;
     margin: 0 auto;
     margin-top: 30px;
     border-radius: 20px;

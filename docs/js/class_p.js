@@ -429,6 +429,1179 @@ class Puzzle {
 
     }
 
+    resize_top(sign, celltype = 'black') {
+        sign = parseInt(sign);
+        if ((this.ny + 1) <= 40 && (this.ny - 1) > 0) {
+            if (celltype === 'white') {
+                // Over, under, left, right
+                if (sign === 1) {
+                    this.space[0] = this.space[0] + 1;
+                } else {
+                    if (this.space[0] > 0) {
+                        this.space[0] = this.space[0] - 1;
+                    }
+                }
+            }
+            if (!this.originalnx) {
+                this.originalnx = this.nx;
+            }
+            if (!this.originalny) {
+                this.originalny = this.ny;
+            }
+            let originalnx0 = this.nx0;
+            let originalny0 = this.ny0;
+
+            // this.nx = nx; // Columns
+            this.ny = this.ny + (1 * sign); // Rows, Adding/Subtracting 1 row
+            // this.nx0 = this.nx + 4;
+            this.ny0 = this.ny + 4;
+            // this.width0 = this.nx + 1;
+            this.height0 = this.ny + 1;
+            // this.width_c = this.width0;
+            this.height_c = this.height0;
+            // this.width = this.width_c;
+            this.height = this.height_c;
+            // this.canvasx = this.width_c * this.size;
+            this.canvasy = this.height_c * this.size;
+
+            this.create_point();
+            this.centerlist = []
+            for (var j = 2; j < this.ny0 - 2; j++) {
+                for (var i = 2; i < this.nx0 - 2; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+            this.search_center();
+            this.center_n0 = this.center_n;
+            this.canvasxy_update();
+            this.canvas_size_setting();
+            this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
+
+            this.centerlist = [] //reset centerlist to match the margins
+            for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
+                for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+
+            this.make_frameline();
+            this.cursol = this.centerlist[0];
+            this.cursolS = 4 * (this.nx0) * (this.ny0) + 4 + 4 * (this.nx0);
+
+            for (var i of ["pu_q", "pu_a"]) {
+                this[i].command_redo = new Stack();
+                this[i].command_undo = new Stack();
+
+                // shift Surface elements to next row
+                if (this[i].surface) {
+                    let temp = this[i].surface;
+                    this[i].surface = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + parseInt(originalnx0) * sign;
+                        this.record("surface", m);
+                        this[i].surface[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift Number elements to next row
+                if (this[i].number) {
+                    let temp = this[i].number;
+                    this[i].number = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + parseInt(originalnx0) * sign;
+                        this.record("number", m);
+                        this[i].number[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift Number elements to next row
+                if (this[i].numberS) {
+                    let temp = this[i].numberS;
+                    this[i].numberS = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + 8 * parseInt(originalnx0) * sign;
+                        this.record("numberS", m);
+                        this[i].numberS[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift Symbol elements to next row
+                if (this[i].symbol) {
+                    let m;
+                    let temp = this[i].symbol;
+                    this[i].symbol = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let factor = Math.floor(parseInt(keys[k]) / ((originalnx0) * (originalny0)));
+                        m = parseInt(keys[k]) + (factor + 1) * parseInt(originalnx0) * sign;
+                        this.record("symbol", m);
+                        this[i].symbol[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift Line elements to next row
+                if (this[i].line) {
+                    let m;
+                    let temp = this[i].line;
+                    this[i].line = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + (factor + 1) * parseInt(originalnx0) * sign;
+                            this.record("line", m);
+                            this[i].line[m] = temp[k];
+                        } else {
+                            let factor = Math.floor(parseInt(k.split(",")[1]) / ((originalnx0) * (originalny0)));
+                            var k1 = parseInt(k.split(",")[0]) + parseInt(originalnx0) * sign;
+                            var k2 = parseInt(k.split(",")[1]) + (factor + 1) * parseInt(originalnx0) * sign;
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("line", key);
+                            this[i].line[key] = temp[k];
+                        }
+                    }
+                }
+
+                // shift Edge elements to next row
+                if (this[i].lineE) {
+                    let m;
+                    let temp = this[i].lineE;
+                    this[i].lineE = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + (factor + 1) * parseInt(originalnx0) * sign;
+                            this.record("lineE", m);
+                            this[i].lineE[m] = temp[k];
+                        } else {
+                            var k1 = parseInt(k.split(",")[0]) + 2 * parseInt(originalnx0) * sign;
+                            var k2 = parseInt(k.split(",")[1]) + 2 * parseInt(originalnx0) * sign;
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("lineE", key);
+                            this[i].lineE[key] = temp[k];
+                        }
+                    }
+                }
+
+
+                // shift DeleteEdge elements to next row            
+                if (this[i].deletelineE) {
+                    let temp = this[i].deletelineE;
+                    this[i].deletelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + 2 * parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + 2 * parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("deletelineE", key);
+                        this[i].deletelineE[key] = temp[k];
+                    }
+                }
+
+                // shift FreeLine elements to next row
+                if (this[i].freeline) {
+                    let temp = this[i].freeline;
+                    this[i].freeline = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("freeline", key);
+                        this[i].freeline[key] = temp[k];
+                    }
+                }
+
+                // shift FreeEdge elements to next row
+                if (this[i].freelineE) {
+                    let temp = this[i].freelineE;
+                    this[i].freelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + 2 * parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + 2 * parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("freelineE", key);
+                        this[i].freelineE[key] = temp[k];
+                    }
+                }
+
+                // shift Thermo elements to next row
+                if (this[i].thermo) {
+                    let temp = this[i].thermo;
+                    this[i].thermo = {};
+                    this[i].thermo = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("thermo", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + parseInt(originalnx0) * sign;
+                        }
+                        this[i].thermo[k] = temp[k];
+                    }
+                }
+
+                // shift Arrow elements to next row
+                if (this[i].arrows) {
+                    let temp = this[i].arrows;
+                    this[i].arrows = {};
+                    this[i].arrows = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("arrows", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + parseInt(originalnx0) * sign;
+                        }
+                        this[i].arrows[k] = temp[k];
+                    }
+                }
+
+                // shift Direction elements to next row
+                if (this[i].direction) {
+                    let temp = this[i].direction;
+                    this[i].direction = {};
+                    this[i].direction = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("direction", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + parseInt(originalnx0) * sign;
+                        }
+                        this[i].direction[k] = temp[k];
+                    }
+                }
+
+                // shift RectangleFrame elements to next row
+                if (this[i].squareframe) {
+                    let temp = this[i].squareframe;
+                    this[i].squareframe = {};
+                    this[i].squareframe = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("squareframe", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + parseInt(originalnx0) * sign;
+                        }
+                        this[i].squareframe[k] = temp[k];
+                    }
+                }
+
+                // shift Wall elements to next row
+                if (this[i].wall) {
+                    let temp = this[i].wall;
+                    this[i].wall = {};
+                    for (var k in temp) {
+                        let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                        var k1 = parseInt(k.split(",")[0]) + (factor + 1) * parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + (factor + 1) * parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("wall", key);
+                        this[i].wall[key] = temp[k];
+                    }
+                }
+
+                // shift Cage elements to next row
+                if (this[i].cage) {
+                    let temp = this[i].cage;
+                    this[i].cage = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + 8 * parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + 8 * parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("cage", key);
+                        this[i].cage[key] = temp[k];
+                    }
+                }
+
+                // shift Polygon elements to next row
+                if (this[i].polygon) {
+                    let temp = this[i].polygon;
+                    this[i].polygon = {};
+                    this[i].polygon = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("polygon", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + 2 * parseInt(originalnx0) * sign;
+                        }
+                        this[i].polygon[k] = temp[k];
+                    }
+                }
+            }
+            this.redraw();
+        } else {
+            if (sign === 1) {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Max row size reached <h2 style="color:red;">40</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            } else {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Min row size reached <h2 style="color:red;">1</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            }
+        }
+    }
+
+    resize_bottom(sign, celltype = 'black') {
+        sign = parseInt(sign);
+        if ((this.ny + 1) <= 40 && (this.ny - 1) > 0) {
+            if (celltype === 'white') {
+                // Over, under, left, right
+                if (sign === 1) {
+                    this.space[1] = this.space[1] + 1;
+                } else {
+                    if (this.space[1] > 0) {
+                        this.space[1] = this.space[1] - 1;
+                    }
+                }
+            }
+            if (!this.originalnx) {
+                this.originalnx = this.nx;
+            }
+            if (!this.originalny) {
+                this.originalny = this.ny;
+            }
+            let originalnx0 = this.nx0;
+            let originalny0 = this.ny0;
+
+            // this.nx = nx; // Columns
+            this.ny = this.ny + (1 * sign); // Rows, Adding/Removing 1 row
+            // this.nx0 = this.nx + 4;
+            this.ny0 = this.ny + 4;
+            // this.width0 = this.nx + 1;
+            this.height0 = this.ny + 1;
+            // this.width_c = this.width0;
+            this.height_c = this.height0;
+            // this.width = this.width_c;
+            this.height = this.height_c;
+            // this.canvasx = this.width_c * this.size;
+            this.canvasy = this.height_c * this.size;
+
+            this.create_point();
+            this.centerlist = []
+            for (var j = 2; j < this.ny0 - 2; j++) {
+                for (var i = 2; i < this.nx0 - 2; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+            this.search_center();
+            this.center_n0 = this.center_n;
+            this.canvasxy_update();
+            this.canvas_size_setting();
+            this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
+
+            this.centerlist = [] //reset centerlist to match the margins
+            for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
+                for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+
+            this.make_frameline();
+            this.cursol = this.centerlist[0];
+            this.cursolS = 4 * (this.nx0) * (this.ny0) + 4 + 4 * (this.nx0);
+
+            for (var i of ["pu_q", "pu_a"]) {
+
+                this[i].command_redo = new Stack();
+                this[i].command_undo = new Stack();
+
+                // Maintain NumberS elements to be in the same row
+                if (this[i].numberS) {
+                    let temp = this[i].numberS;
+                    this[i].numberS = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + 4 * parseInt(originalnx0) * sign;
+                        this.record("numberS", m);
+                        this[i].numberS[m] = temp[keys[k]];
+                    }
+                }
+
+                // Maintain Symbol elements to be in the same row
+                if (this[i].symbol) {
+                    let m;
+                    let temp = this[i].symbol;
+                    this[i].symbol = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let factor = Math.floor(parseInt(keys[k]) / ((originalnx0) * (originalny0)));
+                        m = parseInt(keys[k]) + factor * parseInt(originalnx0) * sign;
+                        this.record("symbol", m);
+                        this[i].symbol[m] = temp[keys[k]];
+                    }
+                }
+
+                // Maintain cross elements to be in the same row
+                if (this[i].line) {
+                    let m;
+                    let temp = this[i].line;
+                    this[i].line = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + (factor * parseInt(originalnx0)) * sign;
+                            this.record("line", m);
+                            this[i].line[m] = temp[k];
+                        } else {
+                            let factor = Math.floor(parseInt(k.split(",")[1]) / ((originalnx0) * (originalny0)));
+                            var k1 = parseInt(k.split(",")[0]);
+                            var k2 = parseInt(k.split(",")[1]) + factor * parseInt(originalnx0) * sign;
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("line", key);
+                            this[i].line[key] = temp[k];
+                        }
+                    }
+                }
+
+                // Maintain Edge elements in the same row
+                if (this[i].lineE) {
+                    let m;
+                    let temp = this[i].lineE;
+                    this[i].lineE = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + (factor * parseInt(originalnx0)) * sign;
+                            this.record("lineE", m);
+                            this[i].lineE[m] = temp[k];
+                        } else {
+                            var k1 = parseInt(k.split(",")[0]) + parseInt(originalnx0) * sign;
+                            var k2 = parseInt(k.split(",")[1]) + parseInt(originalnx0) * sign;
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("lineE", key);
+                            this[i].lineE[key] = temp[k];
+                        }
+                    }
+                }
+
+                // Maintain DeleteEdge elements in the same row     
+                if (this[i].deletelineE) {
+                    let m;
+                    let temp = this[i].deletelineE;
+                    this[i].deletelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("deletelineE", key);
+                        this[i].deletelineE[key] = temp[k];
+                    }
+                }
+
+                // Maintain FreeEdge elements in the same place
+                if (this[i].freelineE) {
+                    let m;
+                    let temp = this[i].freelineE;
+                    this[i].freelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("freelineE", key);
+                        this[i].freelineE[key] = temp[k];
+                    }
+                }
+
+                // Maintain Wall elements in the same row
+                if (this[i].wall) {
+                    let temp = this[i].wall;
+                    this[i].wall = {};
+                    for (var k in temp) {
+                        let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                        var k1 = parseInt(k.split(",")[0]) + factor * parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + factor * parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("wall", key);
+                        this[i].wall[key] = temp[k];
+                    }
+                }
+
+                // Maintain Cage elements in the same row
+                if (this[i].cage) {
+                    let temp = this[i].cage;
+                    this[i].cage = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + 4 * parseInt(originalnx0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + 4 * parseInt(originalnx0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("cage", key);
+                        this[i].cage[key] = temp[k];
+                    }
+                }
+
+                // Maintain Polygon elements in the same row
+                if (this[i].polygon) {
+                    let temp = this[i].polygon;
+                    this[i].polygon = {};
+                    this[i].polygon = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("polygon", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + parseInt(originalnx0) * sign;
+                        }
+                        this[i].polygon[k] = temp[k];
+                    }
+                }
+            }
+            this.redraw();
+        } else {
+            if (sign === 1) {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Max row size reached <h2 style="color:red;">40</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            } else {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Min row size reached <h2 style="color:red;">1</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            }
+        }
+    }
+
+    resize_left(sign, celltype = 'black') {
+        sign = parseInt(sign);
+        if ((this.nx + 1) <= 40 && (this.nx - 1) > 0) {
+            if (celltype === 'white') {
+                // Over, under, left, right
+                if (sign === 1) {
+                    this.space[2] = this.space[2] + 1;
+                } else {
+                    if (this.space[2] > 0) {
+                        this.space[2] = this.space[2] - 1;
+                    }
+                }
+            }
+            if (!this.originalnx) {
+                this.originalnx = this.nx;
+            }
+            if (!this.originalny) {
+                this.originalny = this.ny;
+            }
+            let originalnx0 = this.nx0;
+            let originalny0 = this.ny0;
+
+            this.nx = this.nx + (1 * sign); // Columns, Adding/Removing 1 column
+            // this.ny = this.ny; // Rows
+            this.nx0 = this.nx + 4;
+            // this.ny0 = this.ny + 4;
+            this.width0 = this.nx + 1;
+            // this.height0 = this.ny + 1;
+            this.width_c = this.width0;
+            // this.height_c = this.height0;
+            this.width = this.width_c;
+            // this.height = this.height_c;
+            this.canvasx = this.width_c * this.size;
+            // this.canvasy = this.height_c * this.size;
+
+            this.create_point();
+            this.centerlist = []
+            for (var j = 2; j < this.ny0 - 2; j++) {
+                for (var i = 2; i < this.nx0 - 2; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+            this.search_center();
+            this.center_n0 = this.center_n;
+            this.canvasxy_update();
+            this.canvas_size_setting();
+            this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
+
+            this.centerlist = [] //reset centerlist to match the margins
+            for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
+                for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+
+            this.make_frameline();
+            this.cursol = this.centerlist[0];
+            this.cursolS = 4 * (this.nx0) * (this.ny0) + 4 + 4 * (this.nx0);
+
+            for (var i of ["pu_q", "pu_a"]) {
+                this[i].command_redo = new Stack();
+                this[i].command_undo = new Stack();
+
+                // shift Surface elements to next column
+                if (this[i].surface) {
+                    let temp = this[i].surface;
+                    this[i].surface = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + ((parseInt(parseInt(keys[k]) / originalnx0) - 2) + 3) * sign;
+                        this.record("surface", m);
+                        this[i].surface[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift Number elements to next column
+                if (this[i].number) {
+                    let temp = this[i].number;
+                    this[i].number = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + ((parseInt(parseInt(keys[k]) / originalnx0) - 2) + 3) * sign;
+                        this.record("number", m);
+                        this[i].number[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift NumberS elements to next column
+                if (this[i].numberS) {
+                    let temp = this[i].numberS;
+                    this[i].numberS = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let normal_cursor = parseInt(keys[k] / 4) - (originalnx0 * originalny0);
+                        let m = parseInt(keys[k]) + (4 * (parseInt(normal_cursor / originalnx0) + originalny0) + 4) * sign;
+                        this.record("numberS", m);
+                        this[i].numberS[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift Symbol elements to next column
+                if (this[i].symbol) {
+                    let m;
+                    let temp = this[i].symbol;
+                    this[i].symbol = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let factor = Math.floor(parseInt(keys[k]) / (originalnx0 * originalny0));
+                        m = parseInt(keys[k]) + ((parseInt((keys[k] - (factor * originalnx0 * originalny0)) / (originalnx0)) + 1) + factor * originalny0) * sign;
+                        this.record("symbol", m);
+                        this[i].symbol[m] = temp[keys[k]];
+                    }
+                }
+
+                // shift Line elements to next column
+                if (this[i].line) {
+                    let m;
+                    let temp = this[i].line;
+                    this[i].line = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + ((parseInt((parseInt(k) - (factor * originalnx0 * originalny0)) / (originalnx0)) + 1) + factor * originalny0) * sign;
+                            this.record("line", m);
+                            this[i].line[m] = temp[k];
+                        } else {
+                            let factor = Math.floor(parseInt(k.split(",")[1]) / ((originalnx0) * (originalny0)));
+                            var k1 = parseInt(k.split(",")[0]) + ((parseInt(parseInt(k.split(",")[0]) / originalnx0) - 2) + 3) * sign;
+                            if (factor == 0) {
+                                var k2 = parseInt(k.split(",")[1]) + ((parseInt(parseInt(k.split(",")[1]) / originalnx0) - 2) + 3) * sign;
+                            } else {
+                                var k2 = parseInt(k.split(",")[1]) + ((parseInt((parseInt(k.split(",")[1]) - (factor * originalnx0 * originalny0)) / (originalnx0)) + 1) + factor * originalny0) * sign;
+                            }
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("line", key);
+                            this[i].line[key] = temp[k];
+                        }
+                    }
+                }
+
+                // shift Edge elements to next column
+                if (this[i].lineE) {
+                    let m;
+                    let temp = this[i].lineE;
+                    this[i].lineE = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + ((parseInt((parseInt(k) - (factor * originalnx0 * originalny0)) / (originalnx0)) + 1) + factor * originalny0) * sign;
+                            this.record("lineE", m);
+                            this[i].lineE[m] = temp[k];
+                        } else {
+                            var k1 = parseInt(k.split(",")[0]) + (parseInt((parseInt(k.split(",")[0]) - (originalnx0 * originalny0)) / (originalnx0) + 1) + parseInt(originalny0)) * sign;
+                            var k2 = parseInt(k.split(",")[1]) + (parseInt((parseInt(k.split(",")[1]) - (originalnx0 * originalny0)) / (originalnx0) + 1) + parseInt(originalny0)) * sign;
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("lineE", key);
+                            this[i].lineE[key] = temp[k];
+                        }
+                    }
+                }
+
+                // shift DeleteEdge elements to next column           
+                if (this[i].deletelineE) {
+                    let temp = this[i].deletelineE;
+                    this[i].deletelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + (parseInt((parseInt(k.split(",")[0]) - (originalnx0 * originalny0)) / (originalnx0) + 1) + parseInt(originalny0)) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + (parseInt((parseInt(k.split(",")[1]) - (originalnx0 * originalny0)) / (originalnx0) + 1) + parseInt(originalny0)) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("deletelineE", key);
+                        this[i].deletelineE[key] = temp[k];
+                    }
+                }
+
+                // shift FreeLine elements to next column
+                if (this[i].freeline) {
+                    let temp = this[i].freeline;
+                    this[i].freeline = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + ((parseInt(parseInt(k.split(",")[0]) / originalnx0) - 2) + 3) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + ((parseInt(parseInt(k.split(",")[1]) / originalnx0) - 2) + 3) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("freeline", key);
+                        this[i].freeline[key] = temp[k];
+                    }
+                }
+
+                // shift FreeEdge elements to next column
+                if (this[i].freelineE) {
+                    let temp = this[i].freelineE;
+                    this[i].freelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + (parseInt((parseInt(k.split(",")[0]) - (originalnx0 * originalny0)) / (originalnx0) + 1) + parseInt(originalny0)) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + (parseInt((parseInt(k.split(",")[1]) - (originalnx0 * originalny0)) / (originalnx0) + 1) + parseInt(originalny0)) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("freelineE", key);
+                        this[i].freelineE[key] = temp[k];
+                    }
+                }
+
+                // shift Thermo elements to next column
+                if (this[i].thermo) {
+                    let temp = this[i].thermo;
+                    this[i].thermo = {};
+                    this[i].thermo = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("thermo", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 3) * sign;
+                        }
+                        this[i].thermo[k] = temp[k];
+                    }
+                }
+
+                // shift Arrow elements to next column
+                if (this[i].arrows) {
+                    let temp = this[i].arrows;
+                    this[i].arrows = {};
+                    this[i].arrows = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("arrows", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 3) * sign;
+                        }
+                        this[i].arrows[k] = temp[k];
+                    }
+                }
+
+                // shift Direction elements to next column
+                if (this[i].direction) {
+                    let temp = this[i].direction;
+                    this[i].direction = {};
+                    this[i].direction = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("direction", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 3) * sign;
+                        }
+                        this[i].direction[k] = temp[k];
+                    }
+                }
+
+                // shift RectangleFrame elements to next column
+                if (this[i].squareframe) {
+                    let temp = this[i].squareframe;
+                    this[i].squareframe = {};
+                    this[i].squareframe = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("squareframe", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 3) * sign;
+                        }
+                        this[i].squareframe[k] = temp[k];
+                    }
+                }
+
+                // shift Wall elements to next column
+                if (this[i].wall) {
+                    let temp = this[i].wall;
+                    this[i].wall = {};
+                    for (var k in temp) {
+                        let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                        var k1 = parseInt(k.split(",")[0]) + ((parseInt((parseInt(k.split(",")[0]) - (factor * originalnx0 * originalny0)) / (originalnx0)) + 1) + factor * originalny0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + ((parseInt((parseInt(k.split(",")[1]) - (factor * originalnx0 * originalny0)) / (originalnx0)) + 1) + factor * originalny0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("wall", key);
+                        this[i].wall[key] = temp[k];
+                    }
+                }
+
+                // shift Cage elements to next column
+                if (this[i].cage) {
+                    let temp = this[i].cage;
+                    this[i].cage = {};
+                    for (var k in temp) {
+                        let normal_cursor1 = parseInt(parseInt(k.split(",")[0]) / 4) - (originalnx0 * originalny0);
+                        let normal_cursor2 = parseInt(parseInt(k.split(",")[1]) / 4) - (originalnx0 * originalny0);
+                        var k1 = parseInt(k.split(",")[0]) + (4 * (parseInt(normal_cursor1 / originalnx0) + originalny0) + 4) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + (4 * (parseInt(normal_cursor2 / originalnx0) + originalny0) + 4) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("cage", key);
+                        this[i].cage[key] = temp[k];
+                    }
+                }
+
+                // shift Polygon elements to next column
+                if (this[i].polygon) {
+                    let temp = this[i].polygon;
+                    this[i].polygon = {};
+                    this[i].polygon = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("polygon", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + (parseInt((parseInt(temp[k][m]) - (originalnx0 * originalny0)) / (originalnx0) + 1) + parseInt(originalny0)) * sign;
+                        }
+                        this[i].polygon[k] = temp[k];
+                    }
+                }
+            }
+            this.redraw();
+        } else {
+            if (sign === 1) {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Max column size reached <h2 style="color:red;">40</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            } else {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Min column size reached <h2 style="color:red;">1</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            }
+        }
+    }
+
+    resize_right(sign, celltype = 'black') {
+        sign = parseInt(sign);
+        if ((this.nx + 1) <= 40 && (this.nx - 1) > 0) {
+            if (celltype === 'white') {
+                // Over, under, left, right
+                if (sign === 1) {
+                    this.space[3] = this.space[3] + 1;
+                } else {
+                    if (this.space[3] > 0) {
+                        this.space[3] = this.space[3] - 1;
+                    }
+                }
+            }
+            if (!this.originalnx) {
+                this.originalnx = this.nx;
+            }
+            if (!this.originalny) {
+                this.originalny = this.ny;
+            }
+            let originalnx0 = this.nx0;
+            let originalny0 = this.ny0;
+
+            this.nx = this.nx + (1 * sign); // Columns, Adding/Removing 1 column
+            // this.ny = this.ny; // Rows
+            this.nx0 = this.nx + 4;
+            // this.ny0 = this.ny + 4;
+            this.width0 = this.nx + 1;
+            // this.height0 = this.ny + 1;
+            this.width_c = this.width0;
+            // this.height_c = this.height0;
+            this.width = this.width_c;
+            // this.height = this.height_c;
+            this.canvasx = this.width_c * this.size;
+            // this.canvasy = this.height_c * this.size;
+
+            this.create_point();
+            this.centerlist = []
+            for (var j = 2; j < this.ny0 - 2; j++) {
+                for (var i = 2; i < this.nx0 - 2; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+            this.search_center();
+            this.center_n0 = this.center_n;
+            this.canvasxy_update();
+            this.canvas_size_setting();
+            this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
+
+            this.centerlist = [] //reset centerlist to match the margins
+            for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
+                for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
+                    this.centerlist.push(i + j * (this.nx0));
+                }
+            }
+
+            this.make_frameline();
+            this.cursol = this.centerlist[0];
+            this.cursolS = 4 * (this.nx0) * (this.ny0) + 4 + 4 * (this.nx0);
+
+            for (var i of ["pu_q", "pu_a"]) {
+                this[i].command_redo = new Stack();
+                this[i].command_undo = new Stack();
+
+                // Maintain Surface elements in the same column
+                if (this[i].surface) {
+                    let temp = this[i].surface;
+                    this[i].surface = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + ((parseInt(parseInt(keys[k]) / originalnx0) - 2) + 2) * sign;
+                        this.record("surface", m);
+                        this[i].surface[m] = temp[keys[k]];
+                    }
+                }
+
+                // Maintain Number elements in the same column
+                if (this[i].number) {
+                    let temp = this[i].number;
+                    this[i].number = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let m = parseInt(keys[k]) + ((parseInt(parseInt(keys[k]) / originalnx0) - 2) + 2) * sign;
+                        this.record("number", m);
+                        this[i].number[m] = temp[keys[k]];
+                    }
+                }
+
+                // Maintain NumberS elements in the same column
+                if (this[i].numberS) {
+                    let temp = this[i].numberS;
+                    this[i].numberS = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let normal_cursor = parseInt(keys[k] / 4) - (originalnx0 * originalny0);
+                        let m = parseInt(keys[k]) + (4 * (parseInt(normal_cursor / originalnx0) + originalny0)) * sign;
+                        this.record("numberS", m);
+                        this[i].numberS[m] = temp[keys[k]];
+                    }
+                }
+
+                // Maintain Symbol elements in the same column
+                if (this[i].symbol) {
+                    let m;
+                    let temp = this[i].symbol;
+                    this[i].symbol = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let factor = Math.floor(parseInt(keys[k]) / (originalnx0 * originalny0));
+                        m = parseInt(keys[k]) + ((parseInt((keys[k] - (factor * originalnx0 * originalny0)) / (originalnx0))) + factor * originalny0) * sign;
+                        this.record("symbol", m);
+                        this[i].symbol[m] = temp[keys[k]];
+                    }
+                }
+
+                // Maintain Line elements in the same column
+                if (this[i].line) {
+                    let m;
+                    let temp = this[i].line;
+                    this[i].line = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + ((parseInt((parseInt(k) - (factor * originalnx0 * originalny0)) / (originalnx0))) + factor * originalny0) * sign;
+                            this.record("line", m);
+                            this[i].line[m] = temp[k];
+                        } else {
+                            let factor = Math.floor(parseInt(k.split(",")[1]) / ((originalnx0) * (originalny0)));
+                            var k1 = parseInt(k.split(",")[0]) + ((parseInt(parseInt(k.split(",")[0]) / originalnx0) - 2) + 2) * sign;
+                            if (factor == 0) {
+                                var k2 = parseInt(k.split(",")[1]) + ((parseInt(parseInt(k.split(",")[1]) / originalnx0) - 2) + 2) * sign;
+                            } else {
+                                var k2 = parseInt(k.split(",")[1]) + ((parseInt((parseInt(k.split(",")[1]) - (factor * originalnx0 * originalny0)) / (originalnx0))) + factor * originalny0) * sign;
+                            }
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("line", key);
+                            this[i].line[key] = temp[k];
+                        }
+                    }
+                }
+
+                // Maintain Edge elements in the same column
+                if (this[i].lineE) {
+                    let m;
+                    let temp = this[i].lineE;
+                    this[i].lineE = {};
+                    for (var k in temp) {
+                        if (temp[k] === 98) {
+                            let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                            m = parseInt(k) + ((parseInt((parseInt(k) - (factor * originalnx0 * originalny0)) / (originalnx0))) + factor * originalny0) * sign;
+                            this.record("lineE", m);
+                            this[i].lineE[m] = temp[k];
+                        } else {
+                            var k1 = parseInt(k.split(",")[0]) + (parseInt((parseInt(k.split(",")[0]) - (originalnx0 * originalny0)) / (originalnx0)) + parseInt(originalny0)) * sign;
+                            var k2 = parseInt(k.split(",")[1]) + (parseInt((parseInt(k.split(",")[1]) - (originalnx0 * originalny0)) / (originalnx0)) + parseInt(originalny0)) * sign;
+                            var key = (k1.toString() + "," + k2.toString());
+                            this.record("lineE", key);
+                            this[i].lineE[key] = temp[k];
+                        }
+                    }
+                }
+
+                // Maintain DeleteEdge elements in the same column           
+                if (this[i].deletelineE) {
+                    let temp = this[i].deletelineE;
+                    this[i].deletelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + (parseInt((parseInt(k.split(",")[0]) - (originalnx0 * originalny0)) / (originalnx0)) + parseInt(originalny0)) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + (parseInt((parseInt(k.split(",")[1]) - (originalnx0 * originalny0)) / (originalnx0)) + parseInt(originalny0)) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("deletelineE", key);
+                        this[i].deletelineE[key] = temp[k];
+                    }
+                }
+
+                // Maintain FreeLine elements in the same column
+                if (this[i].freeline) {
+                    let temp = this[i].freeline;
+                    this[i].freeline = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + ((parseInt(parseInt(k.split(",")[0]) / originalnx0) - 2) + 2) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + ((parseInt(parseInt(k.split(",")[1]) / originalnx0) - 2) + 2) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("freeline", key);
+                        this[i].freeline[key] = temp[k];
+                    }
+                }
+
+                // Maintain FreeEdge elements in the same column
+                if (this[i].freelineE) {
+                    let temp = this[i].freelineE;
+                    this[i].freelineE = {};
+                    for (var k in temp) {
+                        var k1 = parseInt(k.split(",")[0]) + (parseInt((parseInt(k.split(",")[0]) - (originalnx0 * originalny0)) / (originalnx0)) + parseInt(originalny0)) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + (parseInt((parseInt(k.split(",")[1]) - (originalnx0 * originalny0)) / (originalnx0)) + parseInt(originalny0)) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("freelineE", key);
+                        this[i].freelineE[key] = temp[k];
+                    }
+                }
+
+                // Maintain Thermo elements in the same column
+                if (this[i].thermo) {
+                    let temp = this[i].thermo;
+                    this[i].thermo = {};
+                    this[i].thermo = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("thermo", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 2) * sign;
+                        }
+                        this[i].thermo[k] = temp[k];
+                    }
+                }
+
+                // Maintain Arrow elements in the same column
+                if (this[i].arrows) {
+                    let temp = this[i].arrows;
+                    this[i].arrows = {};
+                    this[i].arrows = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("arrows", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 2) * sign;
+                        }
+                        this[i].arrows[k] = temp[k];
+                    }
+                }
+
+                // Maintain Direction elements in the same column
+                if (this[i].direction) {
+                    let temp = this[i].direction;
+                    this[i].direction = {};
+                    this[i].direction = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("direction", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 2) * sign;
+                        }
+                        this[i].direction[k] = temp[k];
+                    }
+                }
+
+                // Maintain RectangleFrame elements in the same column
+                if (this[i].squareframe) {
+                    let temp = this[i].squareframe;
+                    this[i].squareframe = {};
+                    this[i].squareframe = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("squareframe", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + ((parseInt(parseInt(temp[k][m]) / originalnx0) - 2) + 2) * sign;
+                        }
+                        this[i].squareframe[k] = temp[k];
+                    }
+                }
+
+                // Maintain Wall elements in the same column
+                if (this[i].wall) {
+                    let temp = this[i].wall;
+                    this[i].wall = {};
+                    for (var k in temp) {
+                        let factor = Math.floor(parseInt(k) / ((originalnx0) * (originalny0)));
+                        var k1 = parseInt(k.split(",")[0]) + ((parseInt((parseInt(k.split(",")[0]) - (factor * originalnx0 * originalny0)) / (originalnx0))) + factor * originalny0) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + ((parseInt((parseInt(k.split(",")[1]) - (factor * originalnx0 * originalny0)) / (originalnx0))) + factor * originalny0) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("wall", key);
+                        this[i].wall[key] = temp[k];
+                    }
+                }
+
+                // Maintain Cage elements in the same column
+                if (this[i].cage) {
+                    let temp = this[i].cage;
+                    this[i].cage = {};
+                    for (var k in temp) {
+                        let normal_cursor1 = parseInt(parseInt(k.split(",")[0]) / 4) - (originalnx0 * originalny0);
+                        let normal_cursor2 = parseInt(parseInt(k.split(",")[1]) / 4) - (originalnx0 * originalny0);
+                        var k1 = parseInt(k.split(",")[0]) + (4 * (parseInt(normal_cursor1 / originalnx0) + originalny0)) * sign;
+                        var k2 = parseInt(k.split(",")[1]) + (4 * (parseInt(normal_cursor2 / originalnx0) + originalny0)) * sign;
+                        var key = (k1.toString() + "," + k2.toString());
+                        this.record("cage", key);
+                        this[i].cage[key] = temp[k];
+                    }
+                }
+
+                // Maintain Polygon elements in the same column
+                if (this[i].polygon) {
+                    let temp = this[i].polygon;
+                    this[i].polygon = {};
+                    this[i].polygon = new Array(temp.length);
+                    for (var k in temp) {
+                        this.record("polygon", k);
+                        for (var m = 0; m <= (temp[k].length - 1); m++) {
+                            temp[k][m] = parseInt(temp[k][m]) + (parseInt((parseInt(temp[k][m]) - (originalnx0 * originalny0)) / (originalnx0)) + parseInt(originalny0)) * sign;
+                        }
+                        this[i].polygon[k] = temp[k];
+                    }
+                }
+            }
+            this.redraw();
+        } else {
+            if (sign === 1) {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Max column size reached <h2 style="color:red;">40</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            } else {
+                Swal.fire({
+                    title: 'Swaroop says:',
+                    html: 'Min column size reached <h2 style="color:red;">1</h2>',
+                    icon: 'error',
+                    confirmButtonText: 'You, got this 🙂',
+                })
+            }
+        }
+    }
+
     rotate_reset() {
         this.width_c = this.width0;
         this.height_c = this.height0;
@@ -916,6 +2089,7 @@ class Puzzle {
             [],
             []
         ];
+
         var pu = "pu_a";
 
         for (var i in this[pu].surface) {
@@ -3873,6 +5047,9 @@ class Puzzle {
                     }
                     this.pu_a.command_redo.push([a[0], a[1], a[2], pu_mode]);
                 } else {
+                    if (a[0] === "deletelineE") {
+                        pu_mode = "pu_q";
+                    }
                     if (this[pu_mode][a[0]][a[1]]) { //symbol etc
                         this.pu_a.command_redo.push([a[0], a[1], this[pu_mode][a[0]][a[1]], pu_mode]);
                     } else {
@@ -3934,6 +5111,9 @@ class Puzzle {
                     }
                     this.pu_a.command_undo.push([a[0], a[1], a[2], pu_mode]);
                 } else {
+                    if (a[0] === "deletelineE") {
+                        pu_mode = "pu_q";
+                    }
                     if (this[pu_mode][a[0]][a[1]]) {
                         this.pu_a.command_undo.push([a[0], a[1], JSON.stringify(this[pu_mode][a[0]][a[1]]), pu_mode]);
                     } else {
@@ -3968,6 +5148,12 @@ class Puzzle {
                 this.pu_a.command_undo.push([arr, num, null, this.mode.qa]);
             } else if (arr === "move") {
                 this.pu_a.command_undo.push([arr, num[0], num[1], this.mode.qa]); //num[0]:start_point num[1]:to_point
+            } else if (arr === "deletelineE") {
+                if (this.pu_a[arr][num]) {
+                    this.pu_a.command_undo.push([arr, num, JSON.stringify(this.pu_q[arr][num]), "pu_q"]); // Array is also recorded in JSON
+                } else {
+                    this.pu_a.command_undo.push([arr, num, null, "pu_q"]);
+                }
             } else {
                 if (this.pu_a[arr][num]) {
                     this.pu_a.command_undo.push([arr, num, JSON.stringify(this.pu_a[arr][num]), this.mode.qa]); // Array is also recorded in JSON
@@ -3979,9 +5165,8 @@ class Puzzle {
         this.pu_q.command_redo = new Stack();
     }
 
-
     /////////////////////////////
-    //キーイベント
+    // Key Event
     //
     /////////////////////////////
 
@@ -4453,25 +5638,41 @@ class Puzzle {
         }
     }
 
-    //line,lineE,cage_実描画
+    //line,lineE,cage Drawing
     re_line(array, num, line_style) {
-        if (this[this.mode.qa][array][num] === line_style) {
-            if (this.drawing_mode === 100) {
+        if ((this[this.mode.qa][array][num] === line_style) || (this["pu_q"]["deletelineE"][num] === line_style)) {
+            if (this.drawing_mode === 100) { // single line, edge
                 this.record(array, num);
-                delete this[this.mode.qa][array][num];
+                if (array === "deletelineE") {
+                    delete this["pu_q"][array][num];
+                } else {
+                    delete this[this.mode.qa][array][num];
+                }
                 this.drawing_mode = 0;
-            } else if (this.drawing_mode === 0) {
+            } else if (this.drawing_mode === 0) { // to draw in a stretch
                 this.record(array, num);
-                delete this[this.mode.qa][array][num];
+                if (array === "deletelineE") {
+                    delete this["pu_q"][array][num];
+                } else {
+                    delete this[this.mode.qa][array][num];
+                }
             }
         } else {
-            if (this.drawing_mode === 100) {
+            if (this.drawing_mode === 100) { // single line, edge
                 this.record(array, num);
-                this[this.mode.qa][array][num] = line_style;
+                if (array === "deletelineE") {
+                    this["pu_q"][array][num] = line_style;
+                } else {
+                    this[this.mode.qa][array][num] = line_style;
+                }
                 this.drawing_mode = line_style;
-            } else if (this.drawing_mode === line_style) {
+            } else if (this.drawing_mode === line_style) { // to draw in a stretch
                 this.record(array, num);
-                this[this.mode.qa][array][num] = line_style;
+                if (array === "deletelineE") {
+                    this["pu_q"][array][num] = line_style;
+                } else {
+                    this[this.mode.qa][array][num] = line_style;
+                }
             }
         }
     }
@@ -5121,7 +6322,11 @@ class Puzzle {
                     this.re_combi_battleship(num);
                     break;
                 case "star":
-                    this.re_combi_star(num);
+                    if (ondown_key === "mousedown") { // do only star when on laptop
+                        this.re_combi_star_reduced(num);
+                    } else {
+                        this.re_combi_star(num); // Behave as normal when ipad and phone
+                    }
                     break;
                 case "tents":
                     if (ondown_key === "touchstart") {
@@ -5156,6 +6361,9 @@ class Puzzle {
                     break;
                 case "yajilin":
                     this.re_combi_yajilin_downright(num);
+                    break;
+                case "star":
+                    this.re_combi_star_downright(num);
                     break;
             }
         } else if (this.mouse_mode === "move") {
@@ -5715,6 +6923,18 @@ class Puzzle {
         this.redraw();
     }
 
+    re_combi_star_reduced(num) {
+        if (!this[this.mode.qa].symbol[num]) {
+            this.record("symbol", num);
+            this[this.mode.qa].symbol[num] = [1, "star", 2];
+        } else {
+            this.record("symbol", num);
+            delete this[this.mode.qa].symbol[num];
+            this.drawing_mode = 2;
+        }
+        this.redraw();
+    }
+
     re_combi_star(num) {
         if (!this[this.mode.qa].symbol[num]) {
             this.record("symbol", num);
@@ -5730,6 +6950,20 @@ class Puzzle {
         }
         this.redraw();
     }
+
+    re_combi_star_downright(num) {
+        if (!this[this.mode.qa].symbol[num]) {
+            this.record("symbol", num);
+            this[this.mode.qa].symbol[num] = [0, "star", 2];
+            this.drawing_mode = 1;
+        } else {
+            this.record("symbol", num);
+            delete this[this.mode.qa].symbol[num];
+            this.drawing_mode = 2;
+        }
+        this.redraw();
+    }
+
 
     re_combi_star_move(num) {
         if (this.drawing_mode === 1 && (!this[this.mode.qa].symbol[num] || this[this.mode.qa].symbol[num][0] != 0)) {

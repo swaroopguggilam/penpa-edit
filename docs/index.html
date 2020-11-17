@@ -38,7 +38,7 @@
         <h3 id="title">DO NOT USE THIS VERSION OF WEBSITE. ITS ONLY FOR TESTING PURPOSES. GOTO https://swaroopg92.github.io/penpa-edit/ </h3>
         <div id="top_button">
             <input type="button" id="newboard" value="New grid / frame" class="button" />
-            <input type="button" id="rotation" value="Rotate / Move" class="button" />
+            <input type="button" id="rotation" value="Transform" class="button" />
             <input type="button" id="newsize" value="Resize" class="button" style="display:none;" />
             <input type="button" id="saveimage" value="Screenshot" class="button" />
             <input type="button" id="savetext" value="Share" class="button" />
@@ -714,6 +714,19 @@
                 <input type="button" id="closeBtn_size1" value="Apply changes" />
                 <input type="button" id="closeBtn_size2" value="Cancel" />
             </div>
+            <br>
+            <div class="nb_button">
+                <h4 id="div_all"><label id="rt4_lb_r">Add/Remove Rows/Columns:</label></h4>
+                <p><label id="rt5_lb_r">*Works only in Square Board Type, it also resets undo/redo. Answer checking if enabled, will only work with original grid size.</label></p>
+                <input type="button" id="rt_addtop_r" value="Top +" />
+                <input type="button" id="rt_subtop_r" value="Top -" /><br>
+                <input type="button" id="rt_addbottom_r" value="Bottom +" />
+                <input type="button" id="rt_subbottom_r" value="Bottom -" /><br>
+                <input type="button" id="rt_addleft_r" value="Left +" />
+                <input type="button" id="rt_subleft_r" value="Left -" /><br>
+                <input type="button" id="rt_addright_r" value="Right +" />
+                <input type="button" id="rt_subright_r" value="Right -" />
+            </div>
         </div>
     </div>
     <div id="modal-image" class="modal">
@@ -753,7 +766,7 @@
     <div id="modal-rotate" class="modal">
         <div id="modal-rotate-content">
             <div id="modal-header">
-                <h3 id="savetexttitle">Rotate / Move</h3>
+                <h3 id="savetexttitle">Rotate / Move / Add / Remove</h3>
             </div>
             <div class="nb_button">
                 <h4 id="div_all"><label id="rt1_lb">Rotate:</label></h4>
@@ -772,6 +785,19 @@
                 <input type="button" id="rt_center" value="Move board to centre" /><br>
                 <input type="button" id="rt_size" value="Fit window to board" /><br>
                 <input type="button" id="rt_reset" value="Reset" />
+            </div>
+            <br>
+            <div class="nb_button">
+                <h4 id="div_all"><label id="rt4_lb">Add/Remove Rows/Columns:</label></h4>
+                <p><label id="rt5_lb">*Works only in Square Board Type, it also resets undo/redo</label></p>
+                <input type="button" id="rt_addtop" value="Top +" />
+                <input type="button" id="rt_subtop" value="Top -" /><br>
+                <input type="button" id="rt_addbottom" value="Bottom +" />
+                <input type="button" id="rt_subbottom" value="Bottom -" /><br>
+                <input type="button" id="rt_addleft" value="Left +" />
+                <input type="button" id="rt_subleft" value="Left -" /><br>
+                <input type="button" id="rt_addright" value="Right +" />
+                <input type="button" id="rt_subright" value="Right -" />
             </div>
             <br>
             <div class="nb_button">
