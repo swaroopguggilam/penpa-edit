@@ -653,6 +653,17 @@ body textarea {
     font-size: 12px;
 }
 
+#puzzleinfo {
+    background: var(--white);
+    width: 400px;
+    margin: 0 auto;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--blue);
+}
+
 #dvique {
     background: var(--white);
     border: 1px solid var(--blackLight);
@@ -877,21 +888,33 @@ body textarea {
 #modal-rotate-content {
     background-color: var(--white);
     width: 300px;
-    height: 380px;
+    height: 390px;
     margin: 0 auto;
     margin-top: 30px;
     border-radius: 20px;
 }
 
-#modal-save-body {
+#modal-save-body,
+#modal-save-info {
     padding-left: 10px;
     padding-top: 10px;
+}
+
+#saveinfoauthor,
+#saveinfotitle,
+#saveinfosource {
+    margin: 2px auto;
+    width: 90%;
+}
+
+#sourcewarning {
+    color: var(--red);
 }
 
 #modal-save-content {
     background-color: var(--white);
     width: 300px;
-    height: 270px;
+    height: 420px;
     margin: 0 auto;
     margin-top: 30px;
     border-radius: 20px;
