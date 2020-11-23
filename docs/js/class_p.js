@@ -510,7 +510,8 @@ class Puzzle {
                     this[i].number = {};
                     let keys = Object.keys(temp);
                     for (var k = 0; k < keys.length; k++) {
-                        let m = parseInt(keys[k]) + parseInt(originalnx0) * sign;
+                        let factor = Math.floor(parseInt(keys[k]) / ((originalnx0) * (originalny0)));
+                        let m = parseInt(keys[k]) + (factor + 1) * parseInt(originalnx0) * sign;
                         this.record("number", m);
                         this[i].number[m] = temp[keys[k]];
                     }
@@ -806,6 +807,19 @@ class Puzzle {
                 this[i].command_redo = new Stack();
                 this[i].command_undo = new Stack();
 
+                // shift Number elements to next row
+                if (this[i].number) {
+                    let temp = this[i].number;
+                    this[i].number = {};
+                    let keys = Object.keys(temp);
+                    for (var k = 0; k < keys.length; k++) {
+                        let factor = Math.floor(parseInt(keys[k]) / ((originalnx0) * (originalny0)));
+                        let m = parseInt(keys[k]) + factor * parseInt(originalnx0) * sign;
+                        this.record("number", m);
+                        this[i].number[m] = temp[keys[k]];
+                    }
+                }
+
                 // Maintain NumberS elements to be in the same row
                 if (this[i].numberS) {
                     let temp = this[i].numberS;
@@ -1045,7 +1059,8 @@ class Puzzle {
                     this[i].number = {};
                     let keys = Object.keys(temp);
                     for (var k = 0; k < keys.length; k++) {
-                        let m = parseInt(keys[k]) + ((parseInt(parseInt(keys[k]) / originalnx0) - 2) + 3) * sign;
+                        let factor = Math.floor(parseInt(keys[k]) / ((originalnx0) * (originalny0)));
+                        let m = parseInt(keys[k]) + ((parseInt((keys[k] - (factor * originalnx0 * originalny0)) / (originalnx0)) + 1) + factor * originalny0) * sign;
                         this.record("number", m);
                         this[i].number[m] = temp[keys[k]];
                     }
@@ -1364,7 +1379,8 @@ class Puzzle {
                     this[i].number = {};
                     let keys = Object.keys(temp);
                     for (var k = 0; k < keys.length; k++) {
-                        let m = parseInt(keys[k]) + ((parseInt(parseInt(keys[k]) / originalnx0) - 2) + 2) * sign;
+                        let factor = Math.floor(parseInt(keys[k]) / (originalnx0 * originalny0));
+                        let m = parseInt(keys[k]) + ((parseInt((keys[k] - (factor * originalnx0 * originalny0)) / (originalnx0))) + factor * originalny0) * sign;
                         this.record("number", m);
                         this[i].number[m] = temp[keys[k]];
                     }
@@ -2028,7 +2044,19 @@ class Puzzle {
         var text = "";
         text = this.gridtype + "," + this.nx.toString() + "," + this.ny.toString() + "," + this.size.toString() + "," +
             this.theta.toString() + "," + this.reflect.toString() + "," + this.canvasx + "," + this.canvasy + "," + this.center_n + "," + this.center_n0 + "," +
-            this.sudoku[0].toString() + "," + this.sudoku[1].toString() + "," + this.sudoku[2].toString() + "," + this.sudoku[3].toString() + "\n";
+            this.sudoku[0].toString() + "," + this.sudoku[1].toString() + "," + this.sudoku[2].toString() + "," + this.sudoku[3].toString();
+        if (document.getElementById("saveinfotitle").value !== "") {
+            text += "," + "Title: " + document.getElementById("saveinfotitle").value;
+        }
+        if (document.getElementById("saveinfoauthor").value !== "") {
+            text += "," + "Author: " + document.getElementById("saveinfoauthor").value;
+        }
+        if (document.getElementById("saveinfosource").value !== "") {
+            text += "," + document.getElementById("saveinfosource").value + "\n";
+        } else {
+            text += "\n";
+        }
+
         text += JSON.stringify(this.space) + "\n";
         text += JSON.stringify(this.mode.grid) + "~" + JSON.stringify(this.mode["pu_a"]["edit_mode"]) + "~" + JSON.stringify(this.mode["pu_a"][this.mode["pu_a"]["edit_mode"]]) + "\n";
 
@@ -5448,6 +5476,17 @@ class Puzzle {
                         this[this.mode.qa].numberS[this.cursolS][0] = number;
                     } else {
                         delete this[this.mode.qa].numberS[this.cursolS];
+                    }
+                }
+            } else if (this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "11") {
+                var corner_cursor = 4 * (this.cursol + this.nx0 * this.ny0);
+                if (this[this.mode.qa].numberS[corner_cursor]) {
+                    this.record("numberS", corner_cursor);
+                    number = this[this.mode.qa].numberS[corner_cursor][0].slice(1, -1);
+                    if (number) {
+                        this[this.mode.qa].numberS[corner_cursor][0] = number;
+                    } else {
+                        delete this[this.mode.qa].numberS[corner_cursor];
                     }
                 }
             } else {
