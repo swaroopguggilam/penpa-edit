@@ -7,6 +7,7 @@ onload = function() {
     }, { passive: false });
 
     var ua = navigator.userAgent;
+    var ondown_key;
     let is_iPad = (!(ua.toLowerCase().match("iphone")) && ua.maxTouchPoints > 1);
     let is_iPad2 = (navigator.platform === "MacIntel" && typeof navigator.standalone !== "undefined");
     let is_iPad3 = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -103,6 +104,7 @@ onload = function() {
         "Edge Normal", "Edge Diagonal", "Edge Helper",
         "Number Normal", "Number L", "Number M", "Number S", "Candidates", "Number 1/4", "Number Side"
     ];
+
     let modes_mapping = ["surface", "wall", "symbol", "combi",
         "sub_line1", "sub_line2", "sub_line5", "sub_line4",
         "sub_lineE1", "sub_lineE2", "sub_lineE4",
@@ -265,33 +267,35 @@ onload = function() {
 
             if (key === "Tab" || key === "Enter") {
                 let user_choices = getValues('mode_choices');
-                if (previous_length != user_choices.length) {
-                    previous_length = user_choices.length;
-                    counter_index = 0; // reset the counter
-                } else if (counter_index < (previous_length - 1)) {
-                    counter_index++;
-                } else {
-                    counter_index = 0; // reset the counter
-                }
-                let mode_loc = modes.indexOf(user_choices[counter_index]);
-                if (mode_loc < 4) { // Hard coded, '4', Surface, Shape, Wall, Composite Modes, remaining choices are related to submodes
-                    pu.mode_set(modes_mapping[mode_loc])
-                    e.preventDefault();
-                } else {
-                    if (modes_mapping[mode_loc].includes("number")) {
-                        pu.mode_set('number')
-                        e.preventDefault();
-                    } else if (modes_mapping[mode_loc].includes("lineE")) {
-                        pu.mode_set('lineE')
+                if (user_choices.length !== 0) {
+                    if (previous_length != user_choices.length) {
+                        previous_length = user_choices.length;
+                        counter_index = 0; // reset the counter
+                    } else if (counter_index < (previous_length - 1)) {
+                        counter_index++;
+                    } else {
+                        counter_index = 0; // reset the counter
+                    }
+                    let mode_loc = modes.indexOf(user_choices[counter_index]);
+                    if (mode_loc < 4) { // Hard coded, '4', Surface, Shape, Wall, Composite Modes, remaining choices are related to submodes
+                        pu.mode_set(modes_mapping[mode_loc])
                         e.preventDefault();
                     } else {
-                        pu.mode_set('line')
+                        if (modes_mapping[mode_loc].includes("number")) {
+                            pu.mode_set('number')
+                            e.preventDefault();
+                        } else if (modes_mapping[mode_loc].includes("lineE")) {
+                            pu.mode_set('lineE')
+                            e.preventDefault();
+                        } else {
+                            pu.mode_set('line')
+                            e.preventDefault();
+                        }
+                        pu.submode_check(modes_mapping[mode_loc]);
                         e.preventDefault();
                     }
-                    pu.submode_check(modes_mapping[mode_loc]);
-                    e.preventDefault();
+                    event.returnValue = false;
                 }
-                event.returnValue = false;
             }
         }
     }
@@ -423,6 +427,9 @@ onload = function() {
             document.getElementById(e.target.id).style.display = 'none';
             e.preventDefault();
         }
+        if (!pu.ondown_key) {
+            pu.ondown_key = ondown_key;
+        }
         switch (e.target.id) {
             //canvas
             case "canvas":
@@ -453,9 +460,6 @@ onload = function() {
                 savetext();
                 e.preventDefault();
                 break;
-                //case "duplicate":
-                //duplicate();
-                //  break;
             case "input_sudoku":
                 io_sudoku();
                 e.preventDefault();
@@ -971,16 +975,21 @@ onload = function() {
         var option = document.createElement("option");
         option.value = modes[i];
         option.text = modes[i];
-        if (i == 0) { // Default selection Surface Mode
-            option.setAttribute("selected", true);
+        if (this.usertab_choices) {
+
+            // Load the author defined tab settings if any
+            if (this.usertab_choices.indexOf(modes[i]) > -1) {
+                option.setAttribute("selected", true);
+            }
         }
         select.appendChild(option);
     }
     selectBox = new vanillaSelectBox("#mode_choices", {
-        "maxHeight": 130,
-        "search": true
+        "disableSelectAll": false,
+        "maxHeight": 135,
+        "search": true,
+        "translations": { "all": "All", "items": "items", "selectAll": "Check All", "clearAll": "Clear All" }
     }); //"placeHolder": "Surface" translations: { "items": "tab" } "maxWidth": 140
-
 
     window.addEventListener('beforeunload', function(e) {
         if (document.getElementById('reload_button').textContent === "ON") {

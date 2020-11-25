@@ -519,11 +519,17 @@ class Puzzle {
 
                 // shift Number elements to next row
                 if (this[i].numberS) {
+                    let m;
                     let temp = this[i].numberS;
                     this[i].numberS = {};
                     let keys = Object.keys(temp);
                     for (var k = 0; k < keys.length; k++) {
-                        let m = parseInt(keys[k]) + 8 * parseInt(originalnx0) * sign;
+                        let factor = Math.floor(parseInt(keys[k]) / ((originalnx0) * (originalny0)));
+                        if (factor > 8) {
+                            m = parseInt(keys[k]) + 12 * parseInt(originalnx0) * sign;
+                        } else {
+                            m = parseInt(keys[k]) + 8 * parseInt(originalnx0) * sign;
+                        }
                         this.record("numberS", m);
                         this[i].numberS[m] = temp[keys[k]];
                     }
@@ -822,11 +828,17 @@ class Puzzle {
 
                 // Maintain NumberS elements to be in the same row
                 if (this[i].numberS) {
+                    let m;
                     let temp = this[i].numberS;
                     this[i].numberS = {};
                     let keys = Object.keys(temp);
                     for (var k = 0; k < keys.length; k++) {
-                        let m = parseInt(keys[k]) + 4 * parseInt(originalnx0) * sign;
+                        let factor = Math.floor(parseInt(keys[k]) / ((originalnx0) * (originalny0)));
+                        if (factor > 8) {
+                            m = parseInt(keys[k]) + 8 * parseInt(originalnx0) * sign;
+                        } else {
+                            m = parseInt(keys[k]) + 4 * parseInt(originalnx0) * sign;
+                        }
                         this.record("numberS", m);
                         this[i].numberS[m] = temp[keys[k]];
                     }
@@ -1776,6 +1788,19 @@ class Puzzle {
         }
         document.getElementById('mo_' + mode).checked = true;
         this.submode_check('sub_' + mode + this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0]);
+        if ((mode === "number" || mode === "symbol") && (this.ondown_key === "touchstart")) {
+            if (document.getElementById('panel_button').textContent === "OFF") {
+                document.getElementById('panel_button').textContent = "ON";
+                document.getElementById('float-key').style.display = "block";
+                document.getElementById('float-key-body').style.left = 0 + "px";
+                document.getElementById('float-key-body').style.top = 0 + "px";
+                document.getElementById('float-key-header').style.left = 0 + "px";
+                document.getElementById('float-key-header').style.top = 0 + "px";
+            }
+        } else if (this.ondown_key === "touchstart") {
+            document.getElementById('panel_button').textContent = "OFF";
+            document.getElementById('float-key').style.display = "none";
+        }
         if (mode === "symbol") {
             this.stylemode_check('st_' + mode + this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1] % 10);
             this.stylemode_check('st_' + mode + parseInt(this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1] / 10) * 10);
@@ -1979,7 +2004,13 @@ class Puzzle {
             list.push(this.centerlist[i] - this.centerlist[i - 1]);
         }
 
-        text += JSON.stringify(list);
+        text += JSON.stringify(list) + "\n";
+
+        // Copy the tab selector modes
+        let user_choices = getValues('mode_choices');
+        if (user_choices) {
+            text += JSON.stringify(user_choices);
+        }
 
         for (var i = 0; i < this.replace.length; i++) {
             text = text.split(this.replace[i][0]).join(this.replace[i][1]);
@@ -2024,7 +2055,13 @@ class Puzzle {
             list.push(this.centerlist[i] - this.centerlist[i - 1]);
         }
 
-        text += JSON.stringify(list);
+        text += JSON.stringify(list) + "\n";
+
+        // Copy the tab selector modes
+        let user_choices = getValues('mode_choices');
+        if (user_choices) {
+            text += JSON.stringify(user_choices);
+        }
 
         for (var i = 0; i < this.replace.length; i++) {
             text = text.split(this.replace[i][0]).join(this.replace[i][1]);
@@ -2078,7 +2115,13 @@ class Puzzle {
         for (var i = 1; i < this.centerlist.length; i++) {
             list.push(this.centerlist[i] - this.centerlist[i - 1]);
         }
-        text += JSON.stringify(list);
+        text += JSON.stringify(list) + "\n";
+
+        // Copy the tab selector modes
+        let user_choices = getValues('mode_choices');
+        if (user_choices) {
+            text += JSON.stringify(user_choices);
+        }
 
         for (var i = 0; i < this.replace.length; i++) {
             text = text.split(this.replace[i][0]).join(this.replace[i][1]);
