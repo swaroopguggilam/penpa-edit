@@ -37,6 +37,7 @@ onload = function() {
             var event = e.changedTouches[0];
             e.preventDefault(); // When both mouse and touch start, only touch
         }
+        var ctrl_key = e.ctrlKey;
         var obj = coord_point(event);
         var x = obj.x,
             y = obj.y,
@@ -44,10 +45,10 @@ onload = function() {
         if (pu.point[num].use === 1) {
             if (event.button === 2) { // right click
                 pu.mouse_mode = "down_right";
-                pu.mouseevent(x, y, num);
+                pu.mouseevent(x, y, num, ctrl_key);
             } else { // Left click or tap
                 pu.mouse_mode = "down_left";
-                pu.mouseevent(x, y, num);
+                pu.mouseevent(x, y, num, ctrl_key);
             }
         }
     }
@@ -102,13 +103,15 @@ onload = function() {
     let modes = ["Surface", "Wall", "Shape", "Composite",
         "Line Normal", "Line Diagonal", "Line Middle", "Line Helper",
         "Edge Normal", "Edge Diagonal", "Edge Helper",
-        "Number Normal", "Number L", "Number M", "Number S", "Candidates", "Number 1/4", "Number Side"
+        "Number Normal", "Number L", "Number M", "Number S", "Candidates", "Number 1/4", "Number Side",
+        "Sudoku Normal", "Sudoku Corner", "Sudoku Centre"
     ];
 
     let modes_mapping = ["surface", "wall", "symbol", "combi",
         "sub_line1", "sub_line2", "sub_line5", "sub_line4",
         "sub_lineE1", "sub_lineE2", "sub_lineE4",
         "sub_number1", "sub_number10", "sub_number6", "sub_number5", "sub_number7", "sub_number3", "sub_number9",
+        "sub_sudoku1", "sub_sudoku2", "sub_sudoku3"
     ];
     let previous_mode = "surface";
     let previous_submode = 1;
@@ -138,7 +141,7 @@ onload = function() {
             }
 
             if (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown") { //arrow
-                pu.key_arrow(key);
+                pu.key_arrow(key, ctrl_key);
                 event.returnValue = false;
             }
 
@@ -149,8 +152,8 @@ onload = function() {
                 } else if (str_num.indexOf(key) != -1 || str_alph_low.indexOf(key) != -1 || str_alph_up.indexOf(key) != -1 || str_sym.indexOf(key) != -1) {
                     event.preventDefault();
                     pu.key_number(key);
-                } else if (key === " ") {
-                    pu.key_space();
+                } else if (key === " " || key === "Delete") {
+                    pu.key_space(key);
                     event.returnValue = false;
                 } else if (key === "Backspace") {
                     pu.key_backspace();
@@ -224,46 +227,61 @@ onload = function() {
                 }
             }
 
-            // if (alt_key && !shift_key && !ctrl_key) {
-            //     switch (key) {
-            //         case "x":
-            //         case "X":
-            //             var present_mode = document.getElementById("mo_surface").checked;
-            //             if (!present_mode) {
-            //                 pu.mode_set("surface");
-            //                 e.preventDefault();
-            //             }
-            //             event.returnValue = false;
-            //             break;
-            //         case "c":
-            //         case "C":
-            //             var present_mode = document.getElementById("mo_line").checked;
-            //             if (!present_mode) {
-            //                 pu.mode_set("line");
-            //                 e.preventDefault();
-            //             }
-            //             event.returnValue = false;
-            //             break;
-            //         case "v":
-            //         case "V":
-            //             var present_mode = document.getElementById("mo_lineE").checked;
-            //             if (!present_mode) {
-            //                 pu.mode_set("lineE");
-            //                 e.preventDefault();
-            //             }
-            //             event.returnValue = false;
-            //             break;
-            //         case "a":
-            //         case "A":
-            //             var present_mode = document.getElementById("mo_number").checked;
-            //             if (!present_mode) {
-            //                 pu.mode_set("number");
-            //                 e.preventDefault();
-            //             }
-            //             event.returnValue = false;
-            //             break;
-            //     }
-            // }
+            if (alt_key && !shift_key && !ctrl_key) {
+                switch (key) {
+                    case "z":
+                    case "Z":
+                        var present_mode = document.getElementById("mo_sudoku").checked;
+                        if (!present_mode) {
+                            pu.mode_set("sudoku");
+                            e.preventDefault();
+                        }
+                        var present_submode = document.getElementById("sub_sudoku1").checked;
+                        if (!present_submode) {
+                            pu.submode_check("sub_sudoku1");
+                            e.preventDefault();
+                        }
+                        event.returnValue = false;
+                        break;
+                    case "x":
+                    case "X":
+                        var present_mode = document.getElementById("mo_sudoku").checked;
+                        if (!present_mode) {
+                            pu.mode_set("sudoku");
+                            e.preventDefault();
+                        }
+                        var present_submode = document.getElementById("sub_sudoku2").checked;
+                        if (!present_submode) {
+                            pu.submode_check("sub_sudoku2");
+                            e.preventDefault();
+                        }
+                        event.returnValue = false;
+                        break;
+                    case "c":
+                    case "C":
+                        var present_mode = document.getElementById("mo_sudoku").checked;
+                        if (!present_mode) {
+                            pu.mode_set("sudoku");
+                            e.preventDefault();
+                        }
+                        var present_submode = document.getElementById("sub_sudoku3").checked;
+                        if (!present_submode) {
+                            pu.submode_check("sub_sudoku3");
+                            e.preventDefault();
+                        }
+                        event.returnValue = false;
+                        break;
+                    case "v":
+                    case "V":
+                        var present_mode = document.getElementById("mo_surface").checked;
+                        if (!present_mode) {
+                            pu.mode_set("surface");
+                            e.preventDefault();
+                        }
+                        event.returnValue = false;
+                        break;
+                }
+            }
 
             if (key === "Tab" || key === "Enter") {
                 let user_choices = getValues('mode_choices');
@@ -283,6 +301,9 @@ onload = function() {
                     } else {
                         if (modes_mapping[mode_loc].includes("number")) {
                             pu.mode_set('number')
+                            e.preventDefault();
+                        } else if (modes_mapping[mode_loc].includes("sudoku")) {
+                            pu.mode_set('sudoku')
                             e.preventDefault();
                         } else if (modes_mapping[mode_loc].includes("lineE")) {
                             pu.mode_set('lineE')
@@ -429,6 +450,12 @@ onload = function() {
         }
         if (!pu.ondown_key) {
             pu.ondown_key = ondown_key;
+        }
+        if (pu.selection.length > 0 && e.target.id.indexOf("sub_sudoku") == -1 &&
+            e.target.id != "float-canvas" && !e.ctrlKey) {
+            // clear selection
+            pu.selection = [];
+            pu.redraw();
         }
         switch (e.target.id) {
             //canvas

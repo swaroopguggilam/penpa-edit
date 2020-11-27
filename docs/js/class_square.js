@@ -289,6 +289,9 @@ class Puzzle_square extends Puzzle {
                         break;
                 }
                 break;
+            case "sudoku":
+                type = [0];
+                break;
         }
         return type;
     }
@@ -337,7 +340,7 @@ class Puzzle_square extends Puzzle {
         }
     }
 
-    key_arrow(key_code) {
+    key_arrow(key_code, ctrl_key = false) {
         var a, b, c;
         if (this.theta === 0) { b = [0, 1, 2, 3]; } else if (this.theta === 90) { b = [3, 0, 1, 2]; } else if (this.theta === 180) { b = [2, 3, 0, 1]; } else if (this.theta === 270) { b = [1, 2, 3, 0]; }
         if (this.reflect[0] === -1) {
@@ -364,7 +367,7 @@ class Puzzle_square extends Puzzle {
                 c = b[3];
                 break;
         }
-        if (this.mode[this.mode.qa].edit_mode === "number" || this.mode[this.mode.qa].edit_mode === "symbol") {
+        if (this.mode[this.mode.qa].edit_mode === "number" || this.mode[this.mode.qa].edit_mode === "symbol" || this.mode[this.mode.qa].edit_mode === "sudoku") {
             if (this.mode[this.mode.qa].edit_mode === "number" && this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0] === "3") {
                 switch (c) {
                     case 0:
@@ -402,6 +405,56 @@ class Puzzle_square extends Puzzle {
                         a = this.cursolS % 4 === 3 ? this.cursolS + 4 * (this.nx0) : this.cursolS - this.cursolS % 4 + 3;
                         if (this.point[a].use === 1) { this.cursolS = a; }
                         break;
+                }
+            } else if (this.mode[this.mode.qa].edit_mode === "sudoku") {
+                if (this.selection.length >= 1) {
+                    var current_cursor = parseInt(this.selection[this.selection.length - 1]);
+                    switch (c) {
+                        case 0:
+                            a = current_cursor - 1;
+                            if (this.point[a].use === 1) {
+                                if (!ctrl_key) {
+                                    this.selection = [];
+                                }
+                                if (!this.selection.includes(a)) {
+                                    this.selection.push(a);
+                                }
+                            }
+                            break;
+                        case 1:
+                            a = current_cursor - this.nx0;
+                            if (this.point[a].use === 1) {
+                                if (!ctrl_key) {
+                                    this.selection = [];
+                                }
+                                if (!this.selection.includes(a)) {
+                                    this.selection.push(a);
+                                }
+                            }
+                            break;
+                        case 2:
+                            a = current_cursor + 1;
+                            if (this.point[a].use === 1) {
+                                if (!ctrl_key) {
+                                    this.selection = [];
+                                }
+                                if (!this.selection.includes(a)) {
+                                    this.selection.push(a);
+                                }
+                            }
+                            break;
+                        case 3:
+                            a = current_cursor + this.nx0;
+                            if (this.point[a].use === 1) {
+                                if (!ctrl_key) {
+                                    this.selection = [];
+                                }
+                                if (!this.selection.includes(a)) {
+                                    this.selection.push(a);
+                                }
+                            }
+                            break;
+                    }
                 }
             } else {
                 switch (c) {
@@ -480,6 +533,7 @@ class Puzzle_square extends Puzzle {
         if (present_mode !== "pu_q" || document.getElementById('visibility_button').textContent === "ON") {
             this.draw_surface("pu_q");
             this.draw_surface("pu_a");
+            this.draw_selection();
             this.draw_squareframe("pu_q");
             this.draw_squareframe("pu_a");
             this.draw_thermo("pu_q");
@@ -511,6 +565,7 @@ class Puzzle_square extends Puzzle {
             this.draw_freecircle();
         } else {
             this.draw_surface("pu_q");
+            this.draw_selection();
             this.draw_squareframe("pu_q");
             this.draw_thermo("pu_q");
             this.draw_arrowsp("pu_q");
@@ -576,6 +631,22 @@ class Puzzle_square extends Puzzle {
             this.ctx.closePath();
             this.ctx.fill();
             this.ctx.stroke();
+        }
+    }
+
+    draw_selection(pu) {
+        if (this.selection.length > 0) {
+            for (var k of this.selection) {
+                set_surface_style(this.ctx, 13);
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.point[this.point[k].surround[0]].x, this.point[this.point[k].surround[0]].y);
+                for (var j = 1; j < this.point[k].surround.length; j++) {
+                    this.ctx.lineTo(this.point[this.point[k].surround[j]].x, this.point[this.point[k].surround[j]].y);
+                }
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+            }
         }
     }
 
