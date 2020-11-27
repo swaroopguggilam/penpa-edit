@@ -452,7 +452,7 @@ onload = function() {
             pu.ondown_key = ondown_key;
         }
         if (pu.selection.length > 0 && e.target.id.indexOf("sub_sudoku") == -1 &&
-            e.target.id != "float-canvas") {
+            e.target.id != "float-canvas" && !e.ctrlKey) {
             // clear selection
             pu.selection = [];
             pu.redraw();
