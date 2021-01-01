@@ -1,8 +1,50 @@
 ## History
-* 2020/--/-- ver2.24.15
+* 2020/12/29 ver2.24.18
+	* Multi Undo/Redo feature implemented for Sudoku Mode.
+	* Answer checking ability is now visually confirmed by Green color of Solution Mode.
+	* Erase Selected Mode now works for Sudoku Mode.
+	* Timer now automatically starts when Solve link is loaded, Timer status is also copied to Clone.
+	* Fixed Panelmode bug and forced to show only Number for Sudoku Mode.
+	* Redo bug for solution mode fixed.
+	* Fixed composite and line mode bug.
+	* Added New Year message.
+	* Fixed composite lineOX bug.
+	* Improved multiple delete in Sudoku mode. Also spacebar to delete only selected mode contents.
+	* Adaptive centre mode in Sudoku.
+* 2020/12/25 ver2.24.17
+	* Merged PR from Alice.
+	* Added Christmas Wishes.
+	* Fixed Transform bug when Box mode is used.
+	* Added SHIFT and CTRL feature to Sudoku solving mode to temporarily switch to Corner or center mode.
+	* Fixed some bugs related to Normal candidates in Sudoku solving mode.
+	* Export automatically copies string to clipboard.
+	* Adjusted display and formatting of some buttons.
+	* Converted IOsudoku text to placeholder text.
+	* Cells can be deselected in sudoku mode using CTRL.
+	* Fixed Kakuro bug for adding row/column on top/left.
+	* Clone now copies answer check feature as well while in solver mode.
+	* Sudoku cursor is regained while switching between modes.
+	* Adjusted display of some windows for iPad.
+* 2020/12/04 ver2.24.16
+	* Removed ALT. Sudoku shortcuts are now exactly same as (Z,X,C,V).
+	* Fixed the Delete and shortcuts to work in Mac.
+	* Updated answer check to detect red colored numbers, also updated description to reflect sudoku mode.
+	* Updated readme.
+	* Fixed magnets to be entered over other shaded cells.
+	* Title, Author and Source information is now saved in Edit URL, Clone and Solving URL.
+	* Improved corner sudoku solving mode in case of killer clues.
+	* Fixed kakuro grid generation bug for uneven size grid.
+	* I/0 Sudoku 2.0 i.e. Rewrote entire code giving more options and flexibility to the User.
+	* Reorganised JS library files.
+	* Fixed Sudoku mode bugs.
+	* Improved Sudoku solving mode to consider candidates from number mode.
+	* Updated warning messages.
+	* Added new videos.
+* 2020/11/28 ver2.24.15
 	* Sudoku Solving Mode added. Controls similar to CTC App except, use ALT+ (Z,X,C,V) to switch to Normal, Corner, Centre and Surface modes for the shortcuts. Currently enabled only for Sudoku/Square grid type.
 	* Automatic popup of Panel on Mobile/Ipad while in Number/Shape/Sudoku Modes.
 	* Fixed input text field bug of not accepting commas.
+	* Saving undo/redo (history) into URL is now optional. Default is false (not saved).
 * 2020/11/25 ver2.24.14
 	* Tab settings are now saved into URL.
 	* Creator can provide Author, Title and Source information before creating URL.

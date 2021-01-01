@@ -6,9 +6,17 @@
     <meta charset="utf-8" />
     <meta name="robots" content="noindex,nofollow">
     <meta name="viewport" content="width=480">
+    <!-- STYLES -->
     <link href="./css/main.css" rel="stylesheet" type="text/css">
     <link href="./css/vanillaSelectBox.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="./js/vanillaSelectBox.js"></script>
+    <!-- SCRIPTS -->
+    <!-- libs -->
+    <script type="text/javascript" src="./js/libs/CanvasRenderingContext2D.ext.js"></script>
+    <script type="text/javascript" src="./js/libs/encoding.js"></script>
+    <script type="text/javascript" src="./js/libs/vanillaSelectBox.js"></script>
+    <script type="text/javascript" src="./js/libs/zlib.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <!-- rest -->
     <script type="text/javascript" src="./js/main.js"></script>
     <script type="text/javascript" src="./js/class_p.js"></script>
     <script type="text/javascript" src="./js/class_square.js"></script>
@@ -19,8 +27,6 @@
     <script type="text/javascript" src="./js/class_panel.js"></script>
     <script type="text/javascript" src="./js/style.js"></script>
     <script type="text/javascript" src="./js/general.js"></script>
-    <script type="text/javascript" src="./js/encoding.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-180924087-1"></script>
     <script>
@@ -37,7 +43,7 @@
     <header>
         <h3 id="title">DO NOT USE THIS VERSION OF WEBSITE. ITS ONLY FOR TESTING PURPOSES. GOTO https://swaroopg92.github.io/penpa-edit/ </h3>
         <div id="top_button">
-            <input type="button" id="newboard" value="New grid / frame" class="button" />
+            <input type="button" id="newboard" value="New grid / Update" class="button" />
             <input type="button" id="rotation" value="Transform" class="button" />
             <input type="button" id="newsize" value="Resize" class="button" style="display:none;" />
             <input type="button" id="saveimage" value="Screenshot" class="button" />
@@ -541,6 +547,7 @@
     <div id="puzzleinfo">
         <div><label id="puzzletitle" class="info"></label></div>
         <div><label id="puzzleauthor" class="info"></label></div>
+        <div><input type="button" id="puzzlerules" value="Show rules" style="display:none;" /></div>
         <div><a id="puzzlesourcelink" href="" target="_blank"><label id="puzzlesource" class="info"></label></a></div>
     </div>
     <div id="dvique" class="dvique"></div>
@@ -554,11 +561,11 @@
             <span id="redo_text" class="tooltiptext">CTRL + y</span>
         </span>
         <span class="tooltip">
-            <input type="button" id="tb_reset" value="Erase current selection" class="button" />
+            <input type="button" id="tb_reset" value="Erase selected mode" class="button" />
             <span id="eraseselect_text" class="tooltiptext">Erase elements that belongs to the selected mode</span>
         </span>
         <span class="tooltip">
-            <input type="button" id="tb_delete" value="Delete" class="button" />
+            <input type="button" id="tb_delete" value="Delete all" class="button" />
             <span id="erase_text" class="tooltiptext">Erase problem or solution grid</span>
         </span>
         <br><br>
@@ -576,7 +583,7 @@
         <p>Insructions to use the tool <a href="https://github.com/swaroopg92/penpa-edit/blob/master/README.md" target="_blank">here</a>.</p>
         <p>Some FAQs <a href="https://docs.google.com/document/d/12Mde0ogcpdtgM2nz6Z_nZYJnMJyUOMC5f3FUxzH9q74/edit" target="_blank">here</a>.
             Changelogs <a href="https://github.com/swaroopg92/penpa-edit/blob/master/CHANGELOG.md" target="_blank">here</a>.</p>
-        <p>Penpa+ Version 2.24.15, <a href="https://github.com/swaroopg92/penpa-edit/blob/master/CREDITS.md" target="_blank">Credits</a></p>
+        <p>Penpa+ Version 2.24.18, <a href="https://github.com/swaroopg92/penpa-edit/blob/master/CREDITS.md" target="_blank">Credits</a></p>
     </div>
     <div id="float-key">
         <div class="drag-and-drop" id="float-key-header">
@@ -695,7 +702,7 @@
             </span>
             <br>
             <hr size=1 noshade class="newgridhrline">
-            <h5><label id="nb_note">Change grid button only affects the following properties:</label></h5>
+            <h5><label id="nb_note">*Update display* button only affects the following properties:</label></h5>
             <br>
             <h4 id="div_all"><label class="label_nb">Display size:</label></h4>
             <span id="">
@@ -723,8 +730,8 @@
             <label for="nb_out2" class="label" id="nb_out2_lb">No</label>
             <br><br>
             <div class="nb_button">
-                <input type="button" id="closeBtn_nb1" value="Reset" />
-                <input type="button" id="closeBtn_nb2" value="Change grid" />
+                <input type="button" id="closeBtn_nb1" value="New grid" />
+                <input type="button" id="closeBtn_nb2" value="Update display" />
                 <input type="button" id="closeBtn_nb3" value="Cancel" />
             </div>
         </div>
@@ -844,6 +851,8 @@
                 <br>
                 <span>Author:<input type="text" placeholder="Puzzle creator name" value="" id="saveinfoauthor"></span>
                 <br>
+                <span>Rules:<textarea rows="1" cols="10" placeholder="e.g. Classic sudoku rules. Avoid using /." value = "" id="saveinforules"></textarea></span>
+                <br>
                 <span>Source:<input type="text" placeholder="https://example.com" id="saveinfosource"></span>
                 <br>
                 <span id="sourcewarning">*If you are not the author of the puzzle, please specify the source URL</span>
@@ -853,8 +862,12 @@
                 <input type="button" id="address_solve" value="URL for solving" />
                 <input type="button" id="expansion" value="Extra options" />
             </div>
+            <div>
+                <span id="div_all"><label class="label_nb" id="save_undo_lb">Save Undo/Redo (History)</label></span>
+                <input type="checkbox" name="save_undo" id="save_undo">
+            </div>
             <div id="modal-save-body">
-                <textarea readonly rows="10" cols="50" id="savetextarea"></textarea>
+                <textarea readonly rows="1" cols="50" id="savetextarea"></textarea>
                 <span>Filename:<input type="text" placeholder="sample.txt" id="savetextname"></span>
             </div>
             <div class="nb_button">
@@ -880,14 +893,15 @@
                 <div class="nb_button">
                     <div id="solutiontext">
                         <p id="solutiontext1">Shading - Dark Grey, Black</p>
-                        <p id="solutiontext2">Number - Normal, Big, Middle, Small - Green, Blue</p>
+                        <p id="solutiontext2">Number - Normal, L, M, S - Green, Blue, Red</p>
+                        <p id="solutiontext2">Sudoku - Normal, Centre - Green, Blue, Red</p>
                         <p id="solutiontext3">Line/Edge - Green, Double</p>
                         <p id="solutiontext4">Wall - Green</p>
                         <p id="solutiontext5">Shape - Shape - Square - Option 2</p>
-                        <p id="solutiontext6">Shape - Shape - Circle - M size - Options 1 and 2</p>
+                        <p id="solutiontext6">Shape - Shape - Circle - M size - Options 1 & 2</p>
                         <p id="solutiontext7">Shape - Shape - Corner triangle - Options 1 to 4 </p>
                         <p id="solutiontext8">Shape - Arrow - Small - Options 1 to 8</p>
-                        <p id="solutiontext9">Shape - Number - Math - Black, Green - Options 2 and 3</p>
+                        <p id="solutiontext9">Shape - Number - Math - Black, Green - Options 2 & 3</p>
                         <p id="solutiontext10">Shape - Special 1 - Battleship - Black - Options 1 to 6</p>
                         <p id="solutiontext11">Shape - Special 1 - Tent - Option 2</p>
                         <p id="solutiontext11">Shape - Special 1 - Star - Options 1 to 3</p>
@@ -897,7 +911,6 @@
                 </div>
             </div>
             <div id="modal-save2-pp" style="display:none;">
-                <h3 id="save4texttitle">pp_file</h3>
                 <h5 id="save5texttitle">Header</h5>
                 <textarea rows="1" cols="50" id="savetextarea_pp"></textarea>
                 <div class="nb_button">
@@ -915,14 +928,27 @@
             <div id="modal-save-body">
                 <textarea rows="1" cols="81" id="iostring"></textarea>
             </div>
+            <p id="modal-input-parameters-text">*Specify the location of the first cell of your sudoku grid and its size[optional]:</p>
+            <div id="modal-input-parameters">
+                <span id="div_all"><label class="label_nb" id="firstcell_row_lb">Row:</label></span>
+                <input type="number" pattern="\d*" name="firstcell_row" id="firstcell_row" value="" min="1" max="50" step="1" placeholder="1">
+                <span id="div_all"><label class="label_nb" id="firstcell_column_lb">Col:</label></span>
+                <input type="number" pattern="\d*" name="firstcell_column" id="firstcell_column" value="" min="1" max="50" step="1" placeholder="1">
+                <span id="div_all"><label class="label_nb" id="sudokusize_lb">Size:</label></span>
+                <input type="number" pattern="\d*" name="sudokusize" id="sudokusize" value="" min="1" max="9" step="1" placeholder="9">
+            </div>
+            <div>
+                <span id="div_all"><label class="label_nb" id="ignore_pencilmarks_lb">Ignore Pencil Marks (L, M, S values)</label></span>
+                <input type="checkbox" name="ignore_pencilmarks" id="ignore_pencilmarks">
+            </div>
             <div class="nb_button">
                 <input type="button" id="load_input" value="Import Sudoku" onclick="import_sudoku();" />
                 <input type="button" id="export_input" value="Export Sudoku" onclick="export_sudoku();" />
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="./js/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="./js/easytimer.min.js"></script>
+    <script type="text/javascript" src="./js/libs/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript" src="./js/libs/easytimer.min.js"></script>
     <script type="text/javascript" src="./js/timer.js"></script>
 </body>
 

@@ -1,16 +1,12 @@
 onload = function() {
 
-    boot();
-
-    document.addEventListener("beforeunload", function(eve) {
-        eve.returnValue = "Move page.";
-    }, { passive: false });
-
+    // Detect mobile or Ipad beforing booting
     var ua = navigator.userAgent;
     var ondown_key;
     let is_iPad = (!(ua.toLowerCase().match("iphone")) && ua.maxTouchPoints > 1);
     let is_iPad2 = (navigator.platform === "MacIntel" && typeof navigator.standalone !== "undefined");
     let is_iPad3 = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
     if (ua.indexOf('iPhone') > 0 || ua.indexOf('Android') > 0 && ua.indexOf('Mobile') > 0) {
         ondown_key = "touchstart";
     } else if (ua.indexOf('iPad') > 0 || ua.indexOf('Android') > 0 || is_iPad || is_iPad2 || is_iPad3) {
@@ -18,6 +14,13 @@ onload = function() {
     } else {
         ondown_key = "mousedown";
     }
+    this.ondown_key = ondown_key;
+
+    boot();
+
+    document.addEventListener("beforeunload", function(eve) {
+        eve.returnValue = "Move page.";
+    }, { passive: false });
 
     var checkms = 0; // Temporary variable for hover event
 
@@ -29,6 +32,7 @@ onload = function() {
     canvas.addEventListener("mouseout", onOut, { passive: false });
     canvas.addEventListener("contextmenu", onContextmenu, { passive: false });
     document.addEventListener("keydown", onKeyDown, { passive: false });
+    document.addEventListener("keyup", onKeyUp, { passive: false });
 
     function onDown(e) {
         if (e.type === "mousedown") {
@@ -117,20 +121,86 @@ onload = function() {
     let previous_submode = 1;
     let previous_length = 2;
     let counter_index = 0;
+    let present_submode;
+    let shift_counter = 0;
+    let shift_numkey = false;
+    let shift_release_time = -1e5;
+    let ctrl_counter = 0;
+    let ctrl_numkey = false;
+    let ctrl_release_time = -1e5;
 
     function onKeyDown(e) {
-        if (e.target.type === "number" || e.target.type === "text" || e.target.id == "savetextarea_pp" || e.target.id == "iostring" || e.target.id == "inputtext") {
+        if (e.target.type === "number" ||
+            e.target.type === "text" ||
+            e.target.id == "savetextarea_pp" ||
+            e.target.id == "iostring" ||
+            e.target.id == "inputtext" ||
+            e.target.id == "saveinforules") {
             // For input form
         } else {
             var key = e.key;
+            var keycode = e.keyCode;
+            var keylocation = e.location;
             var shift_key = e.shiftKey;
             var ctrl_key = e.ctrlKey;
             var alt_key = e.altKey;
-
             var str_num = "1234567890";
             var str_alph_low = "abcdefghijklmnopqrstuvwxyz";
             var str_alph_up = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             var str_sym = "!\"#$%&\'()-=^~|@[];+:*,.<>/?_";
+
+            if ((Date.now() - shift_release_time) < 15) {
+                shift_counter = 1;
+                pu.submode_check("sub_sudoku2");
+                shift_release_time = -1e5;
+            }
+
+            // For shift shortcut in Sudoku mode, modify the numpad keys
+            // keylocation 3 indicates numlock is ON and number pad is being used
+            if (pu.mode[pu.mode.qa].edit_mode === "sudoku" && key !== "Shift" && keylocation === 3 && !ctrl_key && !alt_key) {
+                switch (keycode) {
+                    case 45:
+                        key = "0";
+                        shift_numkey = true;
+                        break;
+                    case 35:
+                        key = "1";
+                        shift_numkey = true;
+                        break;
+                    case 40:
+                        key = "2";
+                        shift_numkey = true;
+                        break;
+                    case 34:
+                        key = "3";
+                        shift_numkey = true;
+                        break;
+                    case 37:
+                        key = "4";
+                        shift_numkey = true;
+                        break;
+                    case 12:
+                        key = "5";
+                        shift_numkey = true;
+                        break;
+                    case 39:
+                        key = "6";
+                        shift_numkey = true;
+                        break;
+                    case 36:
+                        key = "7";
+                        shift_numkey = true;
+                        break;
+                    case 38:
+                        key = "8";
+                        shift_numkey = true;
+                        break;
+                    case 33:
+                        key = "9";
+                        shift_numkey = true;
+                        break;
+                }
+            }
 
             if (key === "F2") { //function_key
                 pu.mode_qa("pu_q");
@@ -145,15 +215,48 @@ onload = function() {
                 event.returnValue = false;
             }
 
+            if (key === "Shift") {
+                shift_counter = shift_counter + 1;
+            }
+
+            if (key === "Shift" && shift_counter === 1 && !ctrl_key && !alt_key && pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                present_submode = pu.mode[pu.mode.qa]["sudoku"][0];
+                if (present_submode !== 2) {
+                    pu.submode_check("sub_sudoku2");
+                }
+                event.returnValue = false;
+            }
+
+            if (key === "Control") {
+                ctrl_counter = ctrl_counter + 1;
+            }
+
+            if (key === "Control" && ctrl_counter === 1 && !shift_key && !alt_key && pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                present_submode = pu.mode[pu.mode.qa]["sudoku"][0];
+                if (present_submode !== 3) {
+                    pu.submode_check("sub_sudoku3");
+                }
+                event.returnValue = false;
+            }
+
             if (!ctrl_key && !alt_key) {
                 if (shift_key && key === " ") {
                     pu.key_number(key);
                     event.returnValue = false;
                 } else if (str_num.indexOf(key) != -1 || str_alph_low.indexOf(key) != -1 || str_alph_up.indexOf(key) != -1 || str_sym.indexOf(key) != -1) {
                     event.preventDefault();
-                    pu.key_number(key);
-                } else if (key === " " || key === "Delete") {
-                    pu.key_space(key);
+                    if (shift_key && pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                        pu.key_number(String.fromCharCode(keycode));
+                    } else if (shift_numkey && pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                        pu.key_number(key);
+                        shift_numkey = false;
+                    } else {
+                        pu.key_number(key);
+                    }
+                } else if (key === " " || keycode === 46 || (keycode === 8 && pu.mode[pu.mode.qa].edit_mode === "sudoku")) {
+                    // 46 is for Enter, 8 is for backspace which behaves as Enter for Mac Devices. Since Penpa doesnt use backspace in
+                    // Sudoku mode, I have assigned it to Delete
+                    pu.key_space(keycode);
                     event.returnValue = false;
                 } else if (key === "Backspace") {
                     pu.key_backspace();
@@ -162,81 +265,101 @@ onload = function() {
             }
 
             if (ctrl_key && !shift_key && !alt_key) {
-                switch (key) {
-                    case "d": //Ctrl+d
-                    case "D":
-                        duplicate();
-                        event.returnValue = false;
-                        break;
-                    case "y": //Ctrl+y
-                    case "Y":
-                        pu.redo();
-                        event.returnValue = false;
-                        break;
-                    case "z": //Ctrl+z
-                    case "Z":
-                        pu.undo();
-                        event.returnValue = false;
-                        break;
-                    case " ": //Ctrl+space
-                        pu.key_shiftspace();
-                        event.returnValue = false;
-                        break;
-                    case "i": //Ctrl+i
-                    case "I":
-                        if ((document.getElementById('panel_button').textContent === "ON") &&
-                            (typeof panel_select !== "undefined") &&
-                            (panel_select < panel_pu.cont.length) &&
-                            pu.mode[pu.mode.qa].edit_mode !== "symbol") {
-                            var paneletc = ["ja_K", "ja_H", "Kan", "Rome", "Greek", "Cyrillic", "europe", "Chess", "card"];
+                if (key != "Control") {
+                    switch (key) {
+                        case "d": //Ctrl+d
+                        case "D":
+                            duplicate();
+                            event.returnValue = false;
+                            break;
+                        case "y": //Ctrl+y
+                        case "Y":
+                            pu.redo();
+                            event.returnValue = false;
+                            break;
+                        case "z": //Ctrl+z
+                        case "Z":
+                            pu.undo();
+                            event.returnValue = false;
+                            break;
+                        case " ": //Ctrl+space
+                            pu.key_shiftspace();
+                            event.returnValue = false;
+                            break;
+                        case "i": //Ctrl+i
+                        case "I":
+                            if ((document.getElementById('panel_button').textContent === "ON") &&
+                                (typeof panel_select !== "undefined") &&
+                                (panel_select < panel_pu.cont.length) &&
+                                pu.mode[pu.mode.qa].edit_mode !== "symbol") {
+                                var paneletc = ["ja_K", "ja_H", "Kan", "Rome", "Greek", "Cyrillic", "europe", "Chess", "card"];
 
-                            if (panel_pu.panelmode === "number") {
-                                if (0 <= panel_select && panel_select <= 9) {
-                                    pu.key_number(panel_pu.cont[panel_select].toString());
-                                } else if (panel_select === 10) {
-                                    pu.key_backspace();
-                                } else if (panel_select === 11) {
-                                    pu.key_space();
-                                }
-                            } else if (panel_pu.panelmode === "alphabet" || panel_pu.panelmode === "alphabet_s") {
-                                if (0 <= panel_select && panel_select <= 27) {
-                                    pu.key_number(panel_pu.cont[panel_select].toString());
-                                } else if (panel_select === 28) {
-                                    pu.key_number(" ");
-                                } else if (panel_select >= 29) {
-                                    pu.key_space();
-                                }
-                            } else if (panel_pu.panelmode === "Text") {
-                                panel_pu.inputtext();
-                            } else if (panel_pu.panelmode === "key_symbol") {
-                                if (panel_pu.cont[panel_select] && panel_pu.cont[panel_select] != " ") {
-                                    pu.key_number(panel_pu.cont[panel_select]);
-                                } else if (panel_pu.cont[panel_select] === " ") {
-                                    pu.key_space();
-                                }
-                            } else if (paneletc.indexOf(panel_pu.panelmode) != -1) {
-                                if (panel_pu.cont[panel_select] && panel_pu.cont[panel_select] != "　") {
-                                    pu.key_number(panel_pu.cont[panel_select]);
-                                } else if (panel_pu.cont[panel_select] === "　") {
-                                    pu.key_space();
+                                if (panel_pu.panelmode === "number") {
+                                    if (0 <= panel_select && panel_select <= 9) {
+                                        pu.key_number(panel_pu.cont[panel_select].toString());
+                                    } else if (panel_select === 10) {
+                                        pu.key_backspace();
+                                    } else if (panel_select === 11) {
+                                        pu.key_space();
+                                    }
+                                } else if (panel_pu.panelmode === "alphabet" || panel_pu.panelmode === "alphabet_s") {
+                                    if (0 <= panel_select && panel_select <= 27) {
+                                        pu.key_number(panel_pu.cont[panel_select].toString());
+                                    } else if (panel_select === 28) {
+                                        pu.key_number(" ");
+                                    } else if (panel_select >= 29) {
+                                        pu.key_space();
+                                    }
+                                } else if (panel_pu.panelmode === "Text") {
+                                    panel_pu.inputtext();
+                                } else if (panel_pu.panelmode === "key_symbol") {
+                                    if (panel_pu.cont[panel_select] && panel_pu.cont[panel_select] != " ") {
+                                        pu.key_number(panel_pu.cont[panel_select]);
+                                    } else if (panel_pu.cont[panel_select] === " ") {
+                                        pu.key_space();
+                                    }
+                                } else if (paneletc.indexOf(panel_pu.panelmode) != -1) {
+                                    if (panel_pu.cont[panel_select] && panel_pu.cont[panel_select] != "　") {
+                                        pu.key_number(panel_pu.cont[panel_select]);
+                                    } else if (panel_pu.cont[panel_select] === "　") {
+                                        pu.key_space();
+                                    }
                                 }
                             }
-                        }
-                        event.returnValue = false;
-                        break;
+                            event.returnValue = false;
+                            break;
+                        case "0":
+                        case "1":
+                        case "2":
+                        case "3":
+                        case "4":
+                        case "5":
+                        case "6":
+                        case "7":
+                        case "8":
+                        case "9":
+                            if (pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                                e.preventDefault();
+                            }
+                            pu.key_number(key);
+                            event.returnValue = false;
+                            break;
+                    }
+                } else {
+                    event.returnValue = false;
                 }
             }
 
-            if (alt_key && !shift_key && !ctrl_key) {
+            if (!ctrl_key && (pu.mode[pu.mode.qa].edit_mode === "surface" || pu.mode[pu.mode.qa].edit_mode === "sudoku")) {
                 switch (key) {
                     case "z":
                     case "Z":
-                        var present_mode = document.getElementById("mo_sudoku").checked;
+                        present_mode = document.getElementById("mo_sudoku").checked;
                         if (!present_mode) {
                             pu.mode_set("sudoku");
                             e.preventDefault();
                         }
-                        var present_submode = document.getElementById("sub_sudoku1").checked;
+                        present_submode = document.getElementById("sub_sudoku1").checked;
                         if (!present_submode) {
                             pu.submode_check("sub_sudoku1");
                             e.preventDefault();
@@ -245,12 +368,12 @@ onload = function() {
                         break;
                     case "x":
                     case "X":
-                        var present_mode = document.getElementById("mo_sudoku").checked;
+                        present_mode = document.getElementById("mo_sudoku").checked;
                         if (!present_mode) {
                             pu.mode_set("sudoku");
                             e.preventDefault();
                         }
-                        var present_submode = document.getElementById("sub_sudoku2").checked;
+                        present_submode = document.getElementById("sub_sudoku2").checked;
                         if (!present_submode) {
                             pu.submode_check("sub_sudoku2");
                             e.preventDefault();
@@ -259,12 +382,12 @@ onload = function() {
                         break;
                     case "c":
                     case "C":
-                        var present_mode = document.getElementById("mo_sudoku").checked;
+                        present_mode = document.getElementById("mo_sudoku").checked;
                         if (!present_mode) {
                             pu.mode_set("sudoku");
                             e.preventDefault();
                         }
-                        var present_submode = document.getElementById("sub_sudoku3").checked;
+                        present_submode = document.getElementById("sub_sudoku3").checked;
                         if (!present_submode) {
                             pu.submode_check("sub_sudoku3");
                             e.preventDefault();
@@ -273,11 +396,14 @@ onload = function() {
                         break;
                     case "v":
                     case "V":
-                        var present_mode = document.getElementById("mo_surface").checked;
+                        present_mode = document.getElementById("mo_surface").checked;
                         if (!present_mode) {
                             pu.mode_set("surface");
                             e.preventDefault();
                         }
+                        event.returnValue = false;
+                        break;
+                    default:
                         event.returnValue = false;
                         break;
                 }
@@ -318,6 +444,44 @@ onload = function() {
                     event.returnValue = false;
                 }
             }
+        }
+    }
+
+    function onKeyUp(e) {
+        if (e.target.type === "number" ||
+            e.target.type === "text" ||
+            e.target.id == "savetextarea_pp" ||
+            e.target.id == "iostring" ||
+            e.target.id == "inputtext" ||
+            e.target.id == "saveinforules") {
+            // For input form
+        } else {
+            var key = e.key;
+            var keylocation = e.location;
+            if (key === "Shift" && keylocation !== 3 && pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                if (present_submode === "1") {
+                    pu.submode_check("sub_sudoku1");
+                } else if (present_submode === "2") {
+                    pu.submode_check("sub_sudoku2");
+                } else if (present_submode === "3") {
+                    pu.submode_check("sub_sudoku3");
+                }
+                shift_counter = 0;
+                shift_release_time = Date.now();
+                event.returnValue = false;
+            } else if (key === "Control" && keylocation !== 3 && pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                if (present_submode === "1") {
+                    pu.submode_check("sub_sudoku1");
+                } else if (present_submode === "2") {
+                    pu.submode_check("sub_sudoku2");
+                } else if (present_submode === "3") {
+                    pu.submode_check("sub_sudoku3");
+                }
+                ctrl_counter = 0;
+                ctrl_release_time = Date.now();
+                event.returnValue = false;
+            }
+
         }
     }
 
@@ -451,7 +615,7 @@ onload = function() {
         if (!pu.ondown_key) {
             pu.ondown_key = ondown_key;
         }
-        if (pu.selection.length > 0 && e.target.id.indexOf("sub_sudoku") == -1 &&
+        if (pu.selection.length > 0 && e.target.id.indexOf("sub_sudoku") == -1 && e.target.id.indexOf("st_sudoku") == -1 &&
             e.target.id != "float-canvas" && !e.ctrlKey) {
             // clear selection
             pu.selection = [];
@@ -679,7 +843,7 @@ onload = function() {
                 e.preventDefault();
                 break;
             case "rt_addtop":
-                if ((pu.gridtype === "square") || (pu.gridtype === "kakuro")) { pu.resize_top(1); } else if (pu.gridtype === "sudoku") { pu.resize_top(1, 'white'); }
+                if (pu.gridtype === "square") { pu.resize_top(1); } else if (pu.gridtype === "sudoku" || (pu.gridtype === "kakuro")) { pu.resize_top(1, 'white'); }
                 e.preventDefault();
                 break;
             case "rt_addbottom":
@@ -687,7 +851,7 @@ onload = function() {
                 e.preventDefault();
                 break;
             case "rt_addleft":
-                if ((pu.gridtype === "square") || (pu.gridtype === "kakuro")) { pu.resize_left(1); } else if (pu.gridtype === "sudoku") { pu.resize_left(1, 'white'); }
+                if (pu.gridtype === "square") { pu.resize_left(1); } else if (pu.gridtype === "sudoku" || (pu.gridtype === "kakuro")) { pu.resize_left(1, 'white'); }
                 e.preventDefault();
                 break;
             case "rt_addright":
@@ -695,7 +859,7 @@ onload = function() {
                 e.preventDefault();
                 break;
             case "rt_subtop":
-                if ((pu.gridtype === "square") || (pu.gridtype === "kakuro")) { pu.resize_top(-1); } else if (pu.gridtype === "sudoku") { pu.resize_top(-1, 'white'); }
+                if (pu.gridtype === "square") { pu.resize_top(-1); } else if (pu.gridtype === "sudoku" || (pu.gridtype === "kakuro")) { pu.resize_top(-1, 'white'); }
                 e.preventDefault();
                 break;
             case "rt_subbottom":
@@ -703,7 +867,7 @@ onload = function() {
                 e.preventDefault();
                 break;
             case "rt_subleft":
-                if ((pu.gridtype === "square") || (pu.gridtype === "kakuro")) { pu.resize_left(-1); } else if (pu.gridtype === "sudoku") { pu.resize_left(-1, 'white'); }
+                if (pu.gridtype === "square") { pu.resize_left(-1); } else if (pu.gridtype === "sudoku" || (pu.gridtype === "kakuro")) { pu.resize_left(-1, 'white'); }
                 e.preventDefault();
                 break;
             case "rt_subright":
@@ -841,6 +1005,10 @@ onload = function() {
                 pu.mode_qa("pu_a");
                 e.preventDefault();
                 break;
+            case "puzzlerules":
+                display_rules();
+                e.preventDefault();
+                break;
         }
         // Main mode
         if (e.target.id.slice(0, 3) === "mo_") {
@@ -913,7 +1081,8 @@ onload = function() {
         drag.style.left = event.pageX - x_window + "px";
         body.style.top = event.pageY - y_window + "px";
         body.style.left = event.pageX - x_window + "px";
-
+        window.panel_toplast = body.style.top;
+        window.panel_leftlast = body.style.left;
         drag.addEventListener("touchend", mup, { passive: false });
         drag.addEventListener("mouseup", mup, { passive: false });
         document.body.addEventListener("touchleave", mup, { passive: false });

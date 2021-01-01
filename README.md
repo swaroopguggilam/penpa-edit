@@ -24,6 +24,13 @@ Depending on the browser you can update the page without using the cache with "C
 * F2: Problem mode
 * F3: Solution mode
 * TAB/ENTER: checkout the TAB section below in "Current functions". Tab settings are now retained in the shared URL.
+* In Sudoku Mode
+	* Z - Normal Submode
+	* X - Corner Submode
+	* C - Centre Submode
+	* V - Shading (Surface Mode)
+	* SHIFT - For Temporary Corner Submode
+	* CTRL - For Temporary Centre Submode / Selecting Multiple Cells/ Deselecting selected cells
 
 ## Tips
 * Numbers: Back Space can be entered on the panel "1" tab and half-width space can be entered on the "A" tab.
@@ -112,7 +119,7 @@ Depending on the browser you can update the page without using the cache with "C
 * Then select "Long" or "L" or "M" submode. (Preferrable is Long submode, although it should also work in some other Number submodes (i.e. 1/4, side, arrow, L, M, S)).
 * Panel: ON.
 * Select "Text" tab in the Panel.
-* One can copy unicode symbol (supports most (not all) of them although rendering might be different based on browser) from the websites https://unicode-table.com/en/ or https://www.alt-codes.net/ and paste in the textbox available. (You can click on the symbol/shape in the website, it will allow copying).
+* One can copy unicode symbol (supports most (not all) of them although rendering might be different based on browser) from the websites https://unicode-table.com/en/ or https://www.alt-codes.net/ and paste in the textbox available. (You can click on the symbol/shape in the website, it will allow copying). Based on experience, unicode from https://charbase.com/block has a better chance of getting rendered on different devices as compared to other unicode websites.
 * Then click "Insert".
 * One can also type in the sentence of words and "Insert".
 * Clear button to clear the text area.
@@ -171,6 +178,22 @@ Depending on the browser you can update the page without using the cache with "C
 	* Numerical flick: Input the numerical flick. 123456789 from top left to bottom right.
 	* Alphabet flick: Enter the alphabet by flick. ABCDEFGH- from top left to bottom right. Enter '-' in the lower right corner.
 
+### Sudoku
+* This mode is for Sudoku Solving (It can be used for Creating as well but "Number" mode offers more flexibility for creations. Please checkout "Number" section for more details)
+* You can select multiple cells at the same time.
+	* Drag the mouse on the cells by holding Left Click
+	* Drag the finger on mobile/ipad
+	* You can also use keyboard Arrow Keys to move around
+	* CTRL key to do multiple selection of cells (Useful if you need to select distinct/far apart cells)
+* Shortcuts to switch between sub-modes
+	* Z - Normal Submode - Normal sized numbers
+	* X - Corner Submode - Small digits placed on corners or sides of the cell
+	* C - Centre Submode - Small digits placed in the centre of the cell
+	* V - Shading (Surface Mode) - For coloring the cells (12 color choices)
+* 6 Color choices for User Solving
+	* Answer check only looks for Green/Blue color if enabled
+* Normal, Corner and Centre submodes are also available as part of Tab Selector. Please checkout "Tab selector" section for more details.
+
 ### Grid
 * You can change the border of the board from the "New grid / frame" menu.
 * Grid: Border type
@@ -217,6 +240,7 @@ Depending on the browser you can update the page without using the cache with "C
 	iii. You should enter the solution in Step 2 using one of the accepted color and style as shown in the window.
 4. Click on "Generate URL with answer check"
 5. Click anywhere on the screen outside the small window to close it.
+6. You can verify if the solution check is enabled if "Solution Button" is green colored in Solver mode.
 
 * Options
 1. Copy: copies the URL to the clipboard
@@ -322,6 +346,21 @@ Depending on the browser you can update the page without using the cache with "C
 	6. Specify your required filename and click "Download" button.
 		* Template: [Constructor Initials]-[SubmissionID]-[Genre]-[ShortTitle].txt
 		* Example: SG-012-kurottu-pairs.txt
+
+
+### Clone
+* Opens the puzzle in new link in new tab. Its like making a copy/duplicate of the Puzzle.
+
+### I/O Sudoku
+* This function is to allow the flexibility of Importing and Exporting a Sudoku. It supports Import and Export to https://www.sudokuwiki.org/sudoku.htm solver.
+	* Import Sudoku
+		* Type the input string in the text area which contains digits (0-9) where 0 or (.) is used for an empty cell. No spaces in the string. The number of digits entered should be a perfect square. Basically (1,4,9,16,25,36,49,64,91) is allowed. That is grid size of 1x1 to 9x9.
+		* If its default sudoku grid created from the New Grid options then Penpa automatically knows the position of the Sudoku grid.
+		* User can also select a square portion of the grid and import the digits. User needs to specify the location of the first cell in terms of Row and Column. Then specify the Sudoku gridsize (Size:). Default is 9x9.
+	* Export Sudoku
+		* If its default sudoku grid created from the New Grid options then Penpa automatically knows the position of the Sudoku grid.
+		* User can also select a square portion of the grid and export the digits. User needs to specify the location of the first cell in terms of Row and Column. Then specify the Sudoku gridsize (Size:). Default is 9x9.
+		* Ignore Pencil Marks - Sometimes we want to export the Sudoku grid in the middle of the solve. Checkmark this option and then export to ignore the Corner and Centre digits used while solving.
 
 ### Stop Watch
 * start - starts the timer. Lowest precision is 1/10th of a second.
