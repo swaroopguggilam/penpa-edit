@@ -646,7 +646,7 @@ function newsize() {
 function display_rules() {
     Swal.fire({
         title: 'Rules:',
-        html: '<h4 class="info">' + pu.rules + '</h4>'
+        html: '<h5 class="info">' + pu.rules + '</h5>'
     })
 }
 
@@ -863,6 +863,11 @@ function io_sudoku() {
     document.getElementById("iostring").placeholder = "Enter digits (0-9, 0 or . for an empty cell, no spaces). The number of digits entered should be a perfect square. Default expected length is 81 digits (9x9 sudoku)";
 }
 
+function i_url() {
+    document.getElementById("modal-load").style.display = 'block';
+    document.getElementById("urlstring").placeholder = "In case of \"URL too long Error\". Type/Paste Penpa-edit URL here and click on Load button.";
+}
+
 function expansion() {
     document.getElementById("modal-save2").style.display = 'block';
 }
@@ -1046,8 +1051,25 @@ function export_sudoku() {
     }
 }
 
+function import_url() {
+    let urlstring = document.getElementById("urlstring").value;
+    if (urlstring !== "") {
+        if (urlstring.indexOf("github.io/penpa-edit/?") !== -1) {
+            urlstring = urlstring.split("github.io/penpa-edit/?")[1];
+            load(urlstring);
+            document.getElementById("modal-load").style.display = 'none';
+            if (this.usertab_choices.length > 2) { // If none selected, usertab_chocies = [] (size 2)
+                selectBox.setValue(JSON.parse(this.usertab_choices));
+            }
+        } else {
+            document.getElementById("urlstring").value = "Error: Invalid URL";
+        }
+    } else {
+        document.getElementById("urlstring").value = "Error: Invalid URL";
+    }
+}
+
 function load(urlParam) {
-    //try{
     var param = urlParam.split('&');
     var paramArray = [];
 
@@ -1111,8 +1133,8 @@ function load(urlParam) {
 
     if (rtext_para[18] && rtext_para[18] !== "") {
         document.getElementById("puzzlerules").style.display = "inline";
-        pu.rules = rtext_para[18].replace(/%2C/g, ',').replace(/%2D/g, '<br>');
-        document.getElementById("saveinforules").value = rtext_para[18].replace(/%2C/g, ',').replace(/%2D/g, '\n');
+        pu.rules = rtext_para[18].replace(/%2C/g, ',').replace(/%2D/g, '<br>').replace(/%2E/g, '&').replace(/%2F/g, '=');
+        document.getElementById("saveinforules").value = rtext_para[18].replace(/%2C/g, ',').replace(/%2D/g, '\n').replace(/%2E/g, '&').replace(/%2F/g, '=');
     }
 
     pu.theta = parseInt(rtext_para[4]);
@@ -1713,6 +1735,9 @@ function set_solvemode() {
     // Hide Visibility button
     document.getElementById("visibility_button0").style.display = "none";
     document.getElementById("visibility_button").style.display = "none";
+
+    // Hide Load button
+    document.getElementById("input_url").style.display = "none";
 }
 
 function isEmpty(obj) {

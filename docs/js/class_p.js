@@ -493,7 +493,12 @@ class Puzzle {
             this.canvasxy_update();
             this.canvas_size_setting();
             this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
-
+            if (this.reflect[0] === -1) {
+                this.point_reflect_LR();
+            }
+            if (this.reflect[1] === -1) {
+                this.point_reflect_UD();
+            }
             this.centerlist = [] //reset centerlist to match the margins
             for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
                 for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
@@ -835,7 +840,12 @@ class Puzzle {
             this.canvasxy_update();
             this.canvas_size_setting();
             this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
-
+            if (this.reflect[0] === -1) {
+                this.point_reflect_LR();
+            }
+            if (this.reflect[1] === -1) {
+                this.point_reflect_UD();
+            }
             this.centerlist = [] //reset centerlist to match the margins
             for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
                 for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
@@ -1098,7 +1108,12 @@ class Puzzle {
             this.canvasxy_update();
             this.canvas_size_setting();
             this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
-
+            if (this.reflect[0] === -1) {
+                this.point_reflect_LR();
+            }
+            if (this.reflect[1] === -1) {
+                this.point_reflect_UD();
+            }
             this.centerlist = [] //reset centerlist to match the margins
             for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
                 for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
@@ -1441,7 +1456,12 @@ class Puzzle {
             this.canvasxy_update();
             this.canvas_size_setting();
             this.point_move((this.canvasx * 0.5 - this.point[this.center_n].x + 0.5), (this.canvasy * 0.5 - this.point[this.center_n].y + 0.5), this.theta);
-
+            if (this.reflect[0] === -1) {
+                this.point_reflect_LR();
+            }
+            if (this.reflect[1] === -1) {
+                this.point_reflect_UD();
+            }
             this.centerlist = [] //reset centerlist to match the margins
             for (var j = 2 + this.space[0]; j < this.ny0 - 2 - this.space[1]; j++) {
                 for (var i = 2 + this.space[2]; i < this.nx0 - 2 - this.space[3]; i++) { // the top and left edges are unused
@@ -2131,7 +2151,7 @@ class Puzzle {
 
         // Puzzle Rules
         let ruleinfo = document.getElementById("saveinforules").value;
-        text += "," + ruleinfo.replace(/\n/g, '%2D').replace(/,/g, '%2C') + "\n";
+        text += "," + ruleinfo.replace(/\n/g, '%2D').replace(/,/g, '%2C').replace(/&/g, '%2E').replace(/=/g, '%2F') + "\n";
 
         text += JSON.stringify(this.space) + "\n";
         text += JSON.stringify(this.mode) + "\n";
@@ -2203,7 +2223,7 @@ class Puzzle {
 
         // Puzzle Rules
         let ruleinfo = document.getElementById("saveinforules").value;
-        text += "," + ruleinfo.replace(/\n/g, '%2D').replace(/,/g, '%2C') + "\n";
+        text += "," + ruleinfo.replace(/\n/g, '%2D').replace(/,/g, '%2C').replace(/&/g, '%2E').replace(/=/g, '%2F') + "\n";
 
         text += JSON.stringify(this.space) + "\n";
         text += JSON.stringify(this.mode) + "\n";
@@ -2283,7 +2303,7 @@ class Puzzle {
 
         // Puzzle Rules
         let ruleinfo = document.getElementById("saveinforules").value;
-        text += "," + ruleinfo.replace(/\n/g, '%2D').replace(/,/g, '%2C') + "\n";
+        text += "," + ruleinfo.replace(/\n/g, '%2D').replace(/,/g, '%2C').replace(/&/g, '%2E').replace(/=/g, '%2F') + "\n";
 
         text += JSON.stringify(this.space) + "\n";
         text += JSON.stringify(this.mode.grid) + "~" + JSON.stringify(this.mode["pu_a"]["edit_mode"]) + "~" + JSON.stringify(this.mode["pu_a"][this.mode["pu_a"]["edit_mode"]]) + "\n";
@@ -8134,7 +8154,6 @@ class Puzzle {
         if (this.solution) {
             var text = JSON.stringify(this.make_solution());
             if (text === this.solution && this.sol_flag === 0) {
-                console.log(Color.WHITE);
                 setTimeout(() => {
                     Swal.fire({
                         title: '<h3 class="wish">Happy New Year 2021 </h3>',
@@ -8329,5 +8348,34 @@ class Puzzle {
         } else {
             document.getElementById("iostring").value = "Error: Some cells have more than 1 digit";
         }
+    }
+
+    get_orientation(direction) {
+        // direction 'r' 't' 'l' 'b' right/top/left/bottom
+        // vertical reflect does not affect top/bottom orientation and horizontal reflect does not affect left/right orientation
+        var b, c;
+        if (this.theta === 0) {
+            b = [0, 1, 2, 3];
+        } else if (this.theta === 90) {
+            b = [3, 0, 1, 2];
+        } else if (this.theta === 180) {
+            b = [2, 3, 0, 1];
+        } else if (this.theta === 270) {
+            b = [1, 2, 3, 0];
+        }
+        if (this.reflect[0] === -1 && this.reflect[1] === -1) {
+            c = b[0];
+            b[0] = b[2];
+            b[2] = c;
+        } else if (this.reflect[0] === -1 && (direction === 'l' || direction === 'r')) {
+            c = b[0];
+            b[0] = b[2];
+            b[2] = c;
+        } else if (this.reflect[1] === -1 && (direction === 't' || direction === 'b')) {
+            c = b[0];
+            b[0] = b[2];
+            b[2] = c;
+        }
+        return b[2];
     }
 }
