@@ -128,6 +128,7 @@ class Puzzle {
         this.sol_flag = 0;
         this.undoredo_counter = 0;
         this.rules = "";
+        this.gridmax = { 'square': 60, 'hex': 20, 'tri': 20, 'pyramid': 20, 'cube': 20, 'kakuro': 60 }; // also defined in general.js
         this.replace = [
             ["\"qa\"", "z9"],
             ["\"pu_q\"", "zQ"],
@@ -436,8 +437,11 @@ class Puzzle {
     }
 
     resize_top(sign, celltype = 'black') {
+        // reset the selection while resizing the grid
+        this.selection = [];
+
         sign = parseInt(sign);
-        if ((this.ny + 1) <= 40 && (this.ny - 1) > 0) {
+        if ((this.ny + 1 * sign) <= this.gridmax['square'] && (this.ny + 1 * sign) > 0) {
             let originalspace = [...this.space];
             if (celltype === 'white') {
                 // Over, under, left, right
@@ -768,7 +772,7 @@ class Puzzle {
             if (sign === 1) {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Max row size reached <h2 class="warn">40</h2>',
+                    html: 'Max row size reached <h2 class="warn">' + this.gridmax['square'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -784,8 +788,11 @@ class Puzzle {
     }
 
     resize_bottom(sign, celltype = 'black') {
+        // reset the selection while resizing the grid
+        this.selection = [];
+
         sign = parseInt(sign);
-        if ((this.ny + 1) <= 40 && (this.ny - 1) > 0) {
+        if ((this.ny + 1 * sign) <= this.gridmax['square'] && (this.ny + 1 * sign) > 0) {
             let originalspace = [...this.space];
             if (celltype === 'white') {
                 // Over, under, left, right
@@ -1035,7 +1042,7 @@ class Puzzle {
             if (sign === 1) {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Max row size reached <h2 class="warn">40</h2>',
+                    html: 'Max row size reached <h2 class="warn">' + this.gridmax['square'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -1051,8 +1058,11 @@ class Puzzle {
     }
 
     resize_left(sign, celltype = 'black') {
+        // reset the selection while resizing the grid
+        this.selection = [];
+
         sign = parseInt(sign);
-        if ((this.nx + 1) <= 40 && (this.nx - 1) > 0) {
+        if ((this.nx + 1 * sign) <= this.gridmax['square'] && (this.nx + 1 * sign) > 0) {
             let originalspace = [...this.space];
             if (celltype === 'white') {
                 // Over, under, left, right
@@ -1383,7 +1393,7 @@ class Puzzle {
             if (sign === 1) {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Max column size reached <h2 class="warn">40</h2>',
+                    html: 'Max row size reached <h2 class="warn">' + this.gridmax['square'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -1399,8 +1409,11 @@ class Puzzle {
     }
 
     resize_right(sign, celltype = 'black') {
+        // reset the selection while resizing the grid
+        this.selection = [];
+
         sign = parseInt(sign);
-        if ((this.nx + 1) <= 40 && (this.nx - 1) > 0) {
+        if ((this.nx + 1 * sign) <= this.gridmax['square'] && (this.nx + 1 * sign) > 0) {
             let originalspace = [...this.space];
             if (celltype === 'white') {
                 // Over, under, left, right
@@ -1731,7 +1744,7 @@ class Puzzle {
             if (sign === 1) {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Max column size reached <h2 class="warn">40</h2>',
+                    html: 'Max row size reached <h2 class="warn">' + this.gridmax['square'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -1904,7 +1917,23 @@ class Puzzle {
         }
         document.getElementById('mo_' + mode).checked = true;
         this.submode_check('sub_' + mode + this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0]);
-        if ((mode === "number" || mode === "symbol" || mode === "sudoku") &&
+        if (mode === "symbol") {
+            if (document.getElementById('panel_button').textContent === "OFF") {
+                document.getElementById('panel_button').textContent = "ON";
+                document.getElementById('float-key').style.display = "block";
+                if (window.panel_toplast && window.panel_leftlast) {
+                    document.getElementById('float-key-body').style.left = window.panel_leftlast;
+                    document.getElementById('float-key-body').style.top = window.panel_toplast;
+                    document.getElementById('float-key-header').style.left = window.panel_leftlast;
+                    document.getElementById('float-key-header').style.top = window.panel_toplast;
+                } else {
+                    document.getElementById('float-key-body').style.left = 0 + "px";
+                    document.getElementById('float-key-body').style.top = 0 + "px";
+                    document.getElementById('float-key-header').style.left = 0 + "px";
+                    document.getElementById('float-key-header').style.top = 0 + "px";
+                }
+            }
+        } else if ((mode === "number" || mode === "sudoku") &&
             ((this.ondown_key === "touchstart") || (loadtype === "url" && window.ondown_key === "touchstart"))) {
             if (document.getElementById('panel_button').textContent === "OFF") {
                 document.getElementById('panel_button').textContent = "ON";
@@ -1921,7 +1950,7 @@ class Puzzle {
                     document.getElementById('float-key-header').style.top = 0 + "px";
                 }
             }
-        } else if (this.ondown_key === "touchstart") {
+        } else {
             document.getElementById('panel_button').textContent = "OFF";
             document.getElementById('float-key').style.display = "none";
         }
@@ -2186,9 +2215,19 @@ class Puzzle {
 
         // Copy the tab selector modes
         let user_choices = getValues('mode_choices');
-        if (user_choices) {
-            text += JSON.stringify(user_choices);
+        text += JSON.stringify(user_choices) + "\n";
+
+        // save answer check settings
+        var settingstatus = document.getElementById("answersetting").getElementsByTagName("INPUT");
+        var answersetting = {};
+        for (var i = 0; i < settingstatus.length; i++) {
+            if (settingstatus[i].checked) {
+                answersetting[settingstatus[i].id] = true;
+            } else {
+                answersetting[settingstatus[i].id] = false;
+            }
         }
+        text += JSON.stringify(answersetting);
 
         for (var i = 0; i < this.replace.length; i++) {
             text = text.split(this.replace[i][0]).join(this.replace[i][1]);
@@ -2252,14 +2291,25 @@ class Puzzle {
 
         // Copy the tab selector modes
         let user_choices = getValues('mode_choices');
-        if (user_choices) {
-            text += JSON.stringify(user_choices);
+        text += JSON.stringify(user_choices) + "\n";
+
+        // Save timer
+        if (this.mmode === "solve") {
+            text += sw_timer.getTimeValues().toString(['hours', 'minutes', 'seconds', 'secondTenths']) + "\n";
         }
 
-        if (this.mmode === "solve") {
-            text += "\n";
-            text += sw_timer.getTimeValues().toString(['hours', 'minutes', 'seconds', 'secondTenths']);
+        // save answer check settings
+        var settingstatus = document.getElementById("answersetting").getElementsByTagName("INPUT");
+        var answersetting = {};
+        for (var i = 0; i < settingstatus.length; i++) {
+            if (settingstatus[i].checked) {
+                answersetting[settingstatus[i].id] = true;
+            } else {
+                answersetting[settingstatus[i].id] = false;
+            }
         }
+        text += JSON.stringify(answersetting);
+
 
         for (var i = 0; i < this.replace.length; i++) {
             text = text.split(this.replace[i][0]).join(this.replace[i][1]);
@@ -2330,9 +2380,19 @@ class Puzzle {
 
         // Copy the tab selector modes
         let user_choices = getValues('mode_choices');
-        if (user_choices) {
-            text += JSON.stringify(user_choices);
+        text += JSON.stringify(user_choices) + "\n";
+
+        // save answer check settings
+        var settingstatus = document.getElementById("answersetting").getElementsByTagName("INPUT");
+        var answersetting = {};
+        for (var i = 0; i < settingstatus.length; i++) {
+            if (settingstatus[i].checked) {
+                answersetting[settingstatus[i].id] = true;
+            } else {
+                answersetting[settingstatus[i].id] = false;
+            }
         }
+        text += JSON.stringify(answersetting);
 
         for (var i = 0; i < this.replace.length; i++) {
             text = text.split(this.replace[i][0]).join(this.replace[i][1]);
@@ -2364,8 +2424,8 @@ class Puzzle {
 
     make_solution() {
         // 0 - shading
-        // 1 - Line
-        // 2 - Edge
+        // 1 - Line / FreeLine
+        // 2 - Edge / FreeEdge
         // 3 - Wall
         // 4 - Number
         // 5 - Symbol
@@ -2380,63 +2440,104 @@ class Puzzle {
 
         var pu = "pu_a";
 
-        for (var i in this[pu].surface) {
-            if (this[pu].surface[i] === 1 || this[pu].surface[i] === 4) {
-                sol[0].push(i);
+        // See if user selected any particular setting
+        var answersetting = document.getElementById("answersetting");
+        var settingstatus = answersetting.getElementsByTagName("INPUT");
+        var checkall = true;
+
+        // loop through and check if any settings are selected
+        for (var i = 0; i < settingstatus.length; i++) {
+            if (settingstatus[i].checked) {
+                checkall = false;
+                break;
             }
         }
 
-        for (var i in this[pu].symbol) {
-            if (this[pu].symbol[i][0] === 2 && this[pu].symbol[i][1] === "square_LL") {
-                if (sol[0].indexOf(i) === -1) {
+        if (document.getElementById("sol_surface").checked === true || checkall) {
+            for (var i in this[pu].surface) {
+                if (this[pu].surface[i] === 1 || this[pu].surface[i] === 4) {
                     sol[0].push(i);
                 }
             }
         }
 
-        for (var i in this[pu].line) {
-            if (this[pu].line[i] === 3) {
-                sol[1].push(i + ",1");
-            } else if (this[pu].line[i] === 30) {
-                sol[1].push(i + ",2");
-            }
-        }
-
-        for (var i in this[pu].lineE) {
-            if (this[pu].lineE[i] === 3) {
-                sol[2].push(i + ",1");
-            } else if (this[pu].lineE[i] === 30) {
-                sol[2].push(i + ",2");
-            }
-        }
-
-        for (var i in this[pu].wall) {
-            if (this[pu].wall[i] === 3) {
-                sol[3].push(i);
-            }
-        }
-
-        for (var i in this[pu].number) {
-            // Sudoku only one number and multiple digits in same cell should not be considered, this is for single digit obtained from candidate submode
-            if (this[pu].number[i][2] === "7") {
-                // (Green or light blue or dark blue or red)
-                if (this[pu].number[i][1] === 2 || this[pu].number[i][1] === 8 || this[pu].number[i][1] === 9 || this[pu].number[i][1] === 10) {
-                    var sum = 0,
-                        a;
-                    for (var j = 0; j < 10; j++) {
-                        if (this[pu].number[i][0][j] === 1) {
-                            sum += 1;
-                            a = j + 1;
-                        }
-                    }
-                    if (sum === 1) {
-                        sol[4].push(i + "," + a);
+        if (document.getElementById("sol_square").checked === true || checkall) {
+            for (var i in this[pu].symbol) {
+                if (this[pu].symbol[i][0] === 2 && this[pu].symbol[i][1] === "square_LL") {
+                    if (sol[0].indexOf(i) === -1) {
+                        sol[0].push(i);
                     }
                 }
-            } else if (!isNaN(this[pu].number[i][0]) || !this[pu].number[i][0].match(/[^A-Za-z]+/)) {
-                // ((Green or light blue or dark blue or red) and (Normal, M, S, L))
-                if ((this[pu].number[i][1] === 2 || this[pu].number[i][1] === 8 || this[pu].number[i][1] === 9 || this[pu].number[i][1] === 10) && (this[pu].number[i][2] === "1" || this[pu].number[i][2] === "5" || this[pu].number[i][2] === "6" || this[pu].number[i][2] === "10")) {
-                    sol[4].push(i + "," + this[pu].number[i][0]);
+            }
+        }
+
+        if (document.getElementById("sol_loopline").checked === true || checkall) {
+            for (var i in this[pu].line) {
+                if (this[pu].line[i] === 3) {
+                    sol[1].push(i + ",1");
+                } else if (this[pu].line[i] === 30) {
+                    sol[1].push(i + ",2");
+                }
+            }
+
+            for (var i in this[pu].freeline) {
+                if (this[pu].freeline[i] === 3) {
+                    sol[1].push(i + ",1");
+                } else if (this[pu].freeline[i] === 30) {
+                    sol[1].push(i + ",2");
+                }
+            }
+        }
+
+        if (document.getElementById("sol_loopedge").checked === true || checkall) {
+            for (var i in this[pu].lineE) {
+                if (this[pu].lineE[i] === 3) {
+                    sol[2].push(i + ",1");
+                } else if (this[pu].lineE[i] === 30) {
+                    sol[2].push(i + ",2");
+                }
+            }
+
+            for (var i in this[pu].freelineE) {
+                if (this[pu].freelineE[i] === 3) {
+                    sol[2].push(i + ",1");
+                } else if (this[pu].freelineE[i] === 30) {
+                    sol[2].push(i + ",2");
+                }
+            }
+        }
+
+        if (document.getElementById("sol_wall").checked === true || checkall) {
+            for (var i in this[pu].wall) {
+                if (this[pu].wall[i] === 3) {
+                    sol[3].push(i);
+                }
+            }
+        }
+
+        if (document.getElementById("sol_number").checked === true || checkall) {
+            for (var i in this[pu].number) {
+                // Sudoku only one number and multiple digits in same cell should not be considered, this is for single digit obtained from candidate submode
+                if (this[pu].number[i][2] === "7") {
+                    // (Green or light blue or dark blue or red)
+                    if (this[pu].number[i][1] === 2 || this[pu].number[i][1] === 8 || this[pu].number[i][1] === 9 || this[pu].number[i][1] === 10) {
+                        var sum = 0,
+                            a;
+                        for (var j = 0; j < 10; j++) {
+                            if (this[pu].number[i][0][j] === 1) {
+                                sum += 1;
+                                a = j + 1;
+                            }
+                        }
+                        if (sum === 1) {
+                            sol[4].push(i + "," + a);
+                        }
+                    }
+                } else if (!isNaN(this[pu].number[i][0]) || !this[pu].number[i][0].match(/[^A-Za-z]+/)) {
+                    // ((Green or light blue or dark blue or red) and (Normal, M, S, L))
+                    if ((this[pu].number[i][1] === 2 || this[pu].number[i][1] === 8 || this[pu].number[i][1] === 9 || this[pu].number[i][1] === 10) && (this[pu].number[i][2] === "1" || this[pu].number[i][2] === "5" || this[pu].number[i][2] === "6" || this[pu].number[i][2] === "10")) {
+                        sol[4].push(i + "," + this[pu].number[i][0]);
+                    }
                 }
             }
         }
@@ -2444,39 +2545,53 @@ class Puzzle {
         for (var i in this[pu].symbol) {
             switch (this[pu].symbol[i][1]) {
                 case "circle_M":
-                    if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 2) {
-                        sol[5].push(i + "," + this[pu].symbol[i][0] + "A");
+                    if (document.getElementById("sol_circle").checked === true || checkall) {
+                        if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 2) {
+                            sol[5].push(i + "," + this[pu].symbol[i][0] + "A");
+                        }
                     }
                     break;
                 case "tri":
-                    if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 4) {
-                        sol[5].push(i + "," + this[pu].symbol[i][0] + "B");
+                    if (document.getElementById("sol_tri").checked === true || checkall) {
+                        if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 4) {
+                            sol[5].push(i + "," + this[pu].symbol[i][0] + "B");
+                        }
                     }
                     break;
                 case "arrow_S":
-                    if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 8) {
-                        sol[5].push(i + "," + this[pu].symbol[i][0] + "C");
+                    if (document.getElementById("sol_arrow").checked === true || checkall) {
+                        if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 8) {
+                            sol[5].push(i + "," + this[pu].symbol[i][0] + "C");
+                        }
                     }
                     break;
                 case "battleship_B":
-                    if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 6) {
-                        sol[5].push(i + "," + this[pu].symbol[i][0] + "D");
+                    if (document.getElementById("sol_battleship").checked === true || checkall) {
+                        if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 6) {
+                            sol[5].push(i + "," + this[pu].symbol[i][0] + "D");
+                        }
                     }
                     break;
-                case "star": //starは色を無視
-                    if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 3) {
-                        sol[5].push(i + "," + 1 + "E");
+                case "star": //any star
+                    if (document.getElementById("sol_star").checked === true || checkall) {
+                        if (this[pu].symbol[i][0] >= 1 && this[pu].symbol[i][0] <= 3) {
+                            sol[5].push(i + "," + 1 + "E");
+                        }
                     }
                     break;
                 case "tents":
-                    if (this[pu].symbol[i][0] === 2) {
-                        sol[5].push(i + "," + this[pu].symbol[i][0] + "F");
+                    if (document.getElementById("sol_tent").checked === true || checkall) {
+                        if (this[pu].symbol[i][0] === 2) {
+                            sol[5].push(i + "," + this[pu].symbol[i][0] + "F");
+                        }
                     }
                     break;
                 case "math":
                 case "math_G":
-                    if (this[pu].symbol[i][0] === 2 || this[pu].symbol[i][0] === 3) {
-                        sol[5].push(i + "," + this[pu].symbol[i][0] + "G");
+                    if (document.getElementById("sol_math").checked === true || checkall) {
+                        if (this[pu].symbol[i][0] === 2 || this[pu].symbol[i][0] === 3) {
+                            sol[5].push(i + "," + this[pu].symbol[i][0] + "G");
+                        }
                     }
                     break;
             }
@@ -5582,6 +5697,7 @@ class Puzzle {
         var con, conA;
         var arrow, mode;
         var str_num = "1234567890";
+        var str_num_no0 = "123456789";
         // var str_replace = ["+-=*", "＋－＝＊"];
         // if (str_replace[0].indexOf(key) != -1) { key = str_replace[1][str_replace[0].indexOf(key)]; }
         if (this.mode[this.mode.qa].edit_mode === "number") {
@@ -5717,14 +5833,16 @@ class Puzzle {
                     }
                     break;
                 case "7": // Candidates
-                    this.record("number", this.cursol);
-                    if (this[this.mode.qa].number[this.cursol] && this[this.mode.qa].number[this.cursol][2] === "7") {
-                        con = this[this.mode.qa].number[this.cursol][0];
-                    } else {
-                        con = "";
+                    if (str_num_no0.indexOf(key) != -1) {
+                        this.record("number", this.cursol);
+                        if (this[this.mode.qa].number[this.cursol] && this[this.mode.qa].number[this.cursol][2] === "7") {
+                            con = this[this.mode.qa].number[this.cursol][0];
+                        } else {
+                            con = "";
+                        }
+                        number = this.onofftext(9, key, con);
+                        this[this.mode.qa].number[this.cursol] = [number, this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1], this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0]];
                     }
-                    number = this.onofftext(9, key, con);
-                    this[this.mode.qa].number[this.cursol] = [number, this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][1], this.mode[this.mode.qa][this.mode[this.mode.qa].edit_mode][0]];
                     break;
                 case "8": // Long
                     if (this[this.mode.qa].number[this.cursol] && this[this.mode.qa].number[this.cursol][2] != "2" && this[this.mode.qa].number[this.cursol][2] != "7") {
@@ -8125,27 +8243,38 @@ class Puzzle {
             }
             for (var k of this.selection) {
                 // Color of selected cell
-                set_surface_style(this.ctx, 13);
+                // set_surface_style(this.ctx, 13);
 
                 // Shadow for the selected cell
-                // this.ctx.shadowBlur = 20;
-                // this.ctx.shadowColor = Color.ORANGE_TRANSPARENT;
+                this.ctx.shadowBlur = 10;
+                this.ctx.shadowColor = Color.ORANGE_TRANSPARENT;
 
                 // Border outline for the selected cell
-                // set_line_style(this.ctx, 99);
+                set_line_style(this.ctx, 101);
+                let offset = 3;
 
                 this.ctx.beginPath();
-                this.ctx.moveTo(this.point[this.point[k].surround[0]].x, this.point[this.point[k].surround[0]].y);
+                this.ctx.moveTo(this.point[this.point[k].surround[0]].x + offset, this.point[this.point[k].surround[0]].y + offset);
                 for (var j = 1; j < this.point[k].surround.length; j++) {
-                    this.ctx.lineTo(this.point[this.point[k].surround[j]].x, this.point[this.point[k].surround[j]].y);
+                    switch (j) {
+                        case 1:
+                            this.ctx.lineTo(this.point[this.point[k].surround[j]].x - offset, this.point[this.point[k].surround[j]].y + offset);
+                            break;
+                        case 2:
+                            this.ctx.lineTo(this.point[this.point[k].surround[j]].x - offset, this.point[this.point[k].surround[j]].y - offset);
+                            break;
+                        case 3:
+                            this.ctx.lineTo(this.point[this.point[k].surround[j]].x + offset, this.point[this.point[k].surround[j]].y - offset);
+                            break;
+                    }
                 }
                 this.ctx.closePath();
-                this.ctx.fill();
+                // this.ctx.fill();
                 this.ctx.stroke();
 
                 // Reset Bluring
-                // this.ctx.shadowBlur = 0;
-                // this.ctx.shadowColor = Color.TRANSPARENTBLACK;
+                this.ctx.shadowBlur = 0;
+                this.ctx.shadowColor = Color.TRANSPARENTBLACK;
             }
         }
     }
@@ -8165,8 +8294,8 @@ class Puzzle {
                     })
                 }, 20)
                 sw_timer.stop();
-                this.mouse_mode = "out";
-                this.mouseevent(0, 0, 0);
+                // this.mouse_mode = "out";
+                // this.mouseevent(0, 0, 0);
                 this.sol_flag = 1;
             } else if (text != this.solution && this.sol_flag === 1) { // If the answer changes, check again
                 this.sol_flag = 0;

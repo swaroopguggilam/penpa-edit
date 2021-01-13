@@ -48,6 +48,7 @@
             <input type="button" id="newsize" value="Resize" class="button" style="display:none;" />
             <input type="button" id="saveimage" value="Screenshot" class="button" />
             <input type="button" id="savetext" value="Share" class="button" />
+            <a id="download_link"></a>
             <input type="button" id="duplicate" value="Clone" class="button" onclick="duplicate();" />
             <input type="button" id="input_sudoku" value="I/O Sudoku" class="button" />
             <input type="button" id="input_url" value="Load" class="button" />
@@ -142,9 +143,9 @@
                     <input type="radio" name="mode_number" value="7" id="sub_number7">
                     <label for="sub_number7" class="labelL" id="sub_number7_lb">Candidates</label>
                     <input type="radio" name="mode_number" value="3" id="sub_number3">
-                    <label for="sub_number3" class="labelL" id="sub_number3_lb">1/4</label>
+                    <label for="sub_number3" class="labelL" id="sub_number3_lb"></label>
                     <input type="radio" name="mode_number" value="9" id="sub_number9">
-                    <label for="sub_number9" class="labelL" id="sub_number9_lb">Side</label>
+                    <label for="sub_number9" class="labelL" id="sub_number9_lb"></label>
                     <input type="radio" name="mode_number" value="4" id="sub_number4">
                     <label for="sub_number4" class="labelL" id="sub_number4_lb">Tapa</label>
                     <input type="radio" name="mode_number" value="2" id="sub_number2">
@@ -549,6 +550,7 @@
         <div><label id="puzzleauthor" class="info"></label></div>
         <div><input type="button" id="puzzlerules" value="Show rules" style="display:none;" /></div>
         <div><a id="puzzlesourcelink" href="" target="_blank"><label id="puzzlesource" class="info"></label></a></div>
+        <div><label id="solution_check" class="info" /></label></div>
     </div>
     <div id="dvique" class="dvique"></div>
     <div id="bottom_button">
@@ -583,7 +585,7 @@
         <p>Insructions to use the tool <a href="https://github.com/swaroopg92/penpa-edit/blob/master/README.md" target="_blank">here</a>.</p>
         <p>Some FAQs <a href="https://docs.google.com/document/d/12Mde0ogcpdtgM2nz6Z_nZYJnMJyUOMC5f3FUxzH9q74/edit" target="_blank">here</a>.
             Changelogs <a href="https://github.com/swaroopg92/penpa-edit/blob/master/CHANGELOG.md" target="_blank">here</a>.</p>
-        <p>Penpa+ Version 2.24.20, <a href="https://github.com/swaroopg92/penpa-edit/blob/master/CREDITS.md" target="_blank">Credits</a></p>
+        <p>Penpa+ Version 2.24.21, <a href="https://github.com/swaroopg92/penpa-edit/blob/master/CREDITS.md" target="_blank">Credits</a></p>
     </div>
     <div id="float-key">
         <div class="drag-and-drop" id="float-key-header">
@@ -663,9 +665,9 @@
             <h4 id="div_all"><label class="label_nb" id="nb_size_lb">Size:</label></h4>
             <span>
                 <span id="div_all"><label class="label_nb" id="name_size2">Rows:</label></span>
-                <input type="number" pattern="\d*" name="nb_size2" id="nb_size2" value="10" min="1" max="50" step="1">
+                <input type="number" pattern="\d*" name="nb_size2" id="nb_size2" value="10" min="1" max="60" step="1">
                 <span id="div_all"><label class="label_nb" id="name_size1">Columns:</label></span>
-                <input type="number" pattern="\d*" name="nb_size1" id="nb_size1" value="10" min="1" max="50" step="1">
+                <input type="number" pattern="\d*" name="nb_size1" id="nb_size1" value="10" min="1" max="60" step="1">
                 <span id="div_all"><label class="label_nb" id="nb_sudoku1_lb">Diagonal &#x27CD;</label></span>
                 <input type="checkbox" name="nb_sudoku1" id="nb_sudoku1">
                 <span id="div_all"><label class="label_nb" id="nb_sudoku4_lb">Diagonal &#x27CB;</label></span>
@@ -688,17 +690,17 @@
             <!--Mode Setting-->
             <span id="modal-spaceud" style="display:inline;">
                 <span id="div_all"><label class="label_nb" id="name_space1">Over:</label></span>
-                <input type="number" pattern="\d*" name="nb_space1" id="nb_space1" value="0" min="0" max="10" step="1">
+                <input type="number" pattern="\d*" name="nb_space1" id="nb_space1" value="0" min="0" max="20" step="1">
                 <span id="div_all"><label class="label_nb" id="name_space2">Under</label></span>
-                <input type="number" pattern="\d*" name="nb_space2" id="nb_space2" value="0" min="0" max="10" step="1">
+                <input type="number" pattern="\d*" name="nb_space2" id="nb_space2" value="0" min="0" max="20" step="1">
             </span>
             <br>
             <h4 id="div_all"><label class="label_nb">　　　</label></h4>
             <span id="modal-spacelr" style="display:inline;">
                 <span id="div_all"><label class="label_nb" id="name_space3">Left:</label></span>
-                <input type="number" pattern="\d*" name="nb_space3" id="nb_space3" value="0" min="0" max="10" step="1">
+                <input type="number" pattern="\d*" name="nb_space3" id="nb_space3" value="0" min="0" max="20" step="1">
                 <span id="div_all"><label class="label_nb" id="name_space4">Right:</label></span>
-                <input type="number" pattern="\d*" name="nb_space4" id="nb_space4" value="0" min="0" max="10" step="1">
+                <input type="number" pattern="\d*" name="nb_space4" id="nb_space4" value="0" min="0" max="20" step="1">
             </span>
             <br>
             <hr size=1 noshade class="newgridhrline">
@@ -890,22 +892,114 @@
             </div>
             <div id="modal-save2-solution">
                 <h3 id="save3texttitle">Solution will check only following:</h3>
+                <h5 id="answerwarning">*Default (none selected) it checks for all</h5>
                 <div class="nb_button">
-                    <div id="solutiontext">
-                        <p id="solutiontext1">Shading - Dark Grey, Black</p>
-                        <p id="solutiontext2">Number - Normal, L, M, S - Green, Blue, Red</p>
-                        <p id="solutiontext2">Sudoku - Normal, Centre - Green, Blue, Red</p>
-                        <p id="solutiontext3">Line/Edge - Green, Double</p>
-                        <p id="solutiontext4">Wall - Green</p>
-                        <p id="solutiontext5">Shape - Shape - Square - Option 2</p>
-                        <p id="solutiontext6">Shape - Shape - Circle - M size - Options 1 & 2</p>
-                        <p id="solutiontext7">Shape - Shape - Corner triangle - Options 1 to 4 </p>
-                        <p id="solutiontext8">Shape - Arrow - Small - Options 1 to 8</p>
-                        <p id="solutiontext9">Shape - Number - Math - Black, Green - Options 2 & 3</p>
-                        <p id="solutiontext10">Shape - Special 1 - Battleship - Black - Options 1 to 6</p>
-                        <p id="solutiontext11">Shape - Special 1 - Tent - Option 2</p>
-                        <p id="solutiontext11">Shape - Special 1 - Star - Options 1 to 3</p>
-                    </div>
+                    <table id="answersetting">
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_surface_lb">Shading - Dark Grey, Black: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_surface" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_number_lb">Number - Normal, L, M, S - Green, Blue, Red <br> Sudoku - Normal, Centre - Green, Blue, Red: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_number" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_loopline_lb">Line - Green, Double: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_loopline" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_loopedge_lb">Edge - Green, Double: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_loopedge" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_wall_lb">Wall - Green: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_wall" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_square_lb">Shape - Shape - Square - Option 2: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_square" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_circle_lb">Shape - Shape - Circle - M size - Options 1 & 2: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_circle" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_tri_lb">Shape - Shape - Corner triangle - Options 1 to 4: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_tri" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_arrow_lb">Shape - Arrow - Small - Options 1 to 8: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_arrow" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_math_lb">Shape - Number - Math - Black, Green - Options 2 & 3: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_math" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_battleship_lb">Shape - Special 1 - Battleship - Black - Options 1 to 6: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_battleship" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_tent_lb">Shape - Special 1 - Tent - Option 2: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_tent" class="solcheck">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span id="div_all"><label class="solutiontext" id="sol_star_lb">Shape - Special 1 - Star - Options 1 to 3: </label></span>
+                            </td>
+                            <td>
+                                <input type="checkbox" name="solution" id="sol_star" class="solcheck">
+                            </td>
+                        </tr>
+                    </table>
                     <br>
                     <input type="button" id="closeBtn_save5" value="Generate URL with answer check" />
                 </div>
@@ -931,9 +1025,9 @@
             <p id="modal-input-parameters-text">*Specify the location of the first cell of your sudoku grid and its size[optional]:</p>
             <div id="modal-input-parameters">
                 <span id="div_all"><label class="label_nb" id="firstcell_row_lb">Row:</label></span>
-                <input type="number" pattern="\d*" name="firstcell_row" id="firstcell_row" value="" min="1" max="50" step="1" placeholder="1">
+                <input type="number" pattern="\d*" name="firstcell_row" id="firstcell_row" value="" min="1" max="60" step="1" placeholder="1">
                 <span id="div_all"><label class="label_nb" id="firstcell_column_lb">Col:</label></span>
-                <input type="number" pattern="\d*" name="firstcell_column" id="firstcell_column" value="" min="1" max="50" step="1" placeholder="1">
+                <input type="number" pattern="\d*" name="firstcell_column" id="firstcell_column" value="" min="1" max="60" step="1" placeholder="1">
                 <span id="div_all"><label class="label_nb" id="sudokusize_lb">Size:</label></span>
                 <input type="number" pattern="\d*" name="sudokusize" id="sudokusize" value="" min="1" max="9" step="1" placeholder="9">
             </div>

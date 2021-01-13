@@ -1,9 +1,19 @@
 ## History
+* 2021/01/** ver2.24.22
+	* Fixed Candidate to Center mode bug while entering 0.
+	* Increased the size limit to 60.
+* 2021/01/10 ver2.24.21
+	* Exposed answer check settings to the Setter. Creator can now select which mode elements to be used for answer checking.
+	* Added free line and edge to answer checking.
+	* Fixed Undo bug.
 * 2021/01/03 ver2.24.20
 	* Load URL feature - This resolves the problem of URL Too Long.
 	* Add rows/columns improved by considering rotations and reflections.
 	* Fixed red circle in draw_number for killer sum submode.
 	* Improved Ctrl+Arrow Key Selection in Sudoku Mode.
+	* Improved warning messages.
+	* Improved Sudoku Cursor, colors are better visible.
+	* Improved some button display in Number Mode.
 * 2021/01/01 ver2.24.19
 	* Rules feature implemented.
 	* Fixed composite and line mode bug.

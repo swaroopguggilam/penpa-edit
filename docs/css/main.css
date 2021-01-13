@@ -306,6 +306,24 @@ hr.newgridhrline {
     color: var(--white);
 }
 
+#sub_number3_lb {
+    background: url(images/corners.png);
+    background-repeat: no-repeat;
+    background-size: 90% 90%;
+    background-position: center;
+    vertical-align: top;
+    width: 20px;
+}
+
+#sub_number9_lb {
+    background: url(images/sides.png);
+    background-repeat: no-repeat;
+    background-size: 90% 90%;
+    background-position: center;
+    vertical-align: top;
+    width: 20px;
+}
+
 #st_number6_lb {
     /* White Circle */
     background: url(images/white_circle.png);
@@ -925,6 +943,11 @@ body textarea {
     color: var(--red);
 }
 
+#answerwarning {
+    color: var(--red);
+    text-align: center;
+}
+
 #save_undo_lb,
 #save_undo {
     margin-left: 10px;
@@ -1013,8 +1036,8 @@ textarea {
 
 #modal-save2-content {
     background-color: var(--white);
-    width: 300px;
-    height: 350px;
+    width: 330px;
+    height: 450px;
     margin: 0 auto;
     margin-top: 160px;
     border-radius: 20px;
@@ -1034,6 +1057,19 @@ textarea {
     border-radius: 20px 20px 0px 0px;
 }
 
+#save2texttitle {
+    width: 330px;
+    height: 30px;
+    text-align: center;
+    background: var(--greyLight);
+    padding-top: 0px;
+    border-radius: 20px 20px 0px 0px;
+}
+
+.solcheck {
+    vertical-align: middle;
+}
+
 h4 {
     display: inline;
 }
@@ -1046,9 +1082,8 @@ h4 {
     margin-left: 10px;
 }
 
-#solutiontext {
+.solutiontext {
     font-size: 12px;
-    text-align: left;
 }
 
 input[type=number] {

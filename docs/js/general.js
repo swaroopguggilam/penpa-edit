@@ -59,6 +59,7 @@ function create_newboard() {
 
 function make_class(gridtype, loadtype = 'new') {
     var size = parseInt(document.getElementById("nb_size3").value);
+    var gridmax = { 'square': 60, 'hex': 20, 'tri': 20, 'pyramid': 20, 'cube': 20, 'kakuro': 60 }; // also defined in class_p.js
     switch (gridtype) {
         case "square":
             var nx = parseInt(document.getElementById("nb_size1").value, 10);
@@ -80,12 +81,12 @@ function make_class(gridtype, loadtype = 'new') {
             }
             document.getElementById("nb_sudoku3_lb").style.display = "inline";
             document.getElementById("nb_sudoku3_lb").innerHTML = "*White space is subtracted from the row/column size";
-            if (nx <= 40 && nx > 0 && ny <= 40 && ny > 0 && space1 + space2 < ny && space3 + space4 < nx) {
+            if (nx <= gridmax['square'] && nx > 0 && ny <= gridmax['square'] && ny > 0 && space1 + space2 < ny && space3 + space4 < nx) {
                 pu = new Puzzle_square(nx, ny, size);
             } else {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Rows/Columns Size must be in the range <h2 class="warn">1-40</h2>',
+                    html: 'Rows/Columns Size must be in the range <h2 class="warn">1-' + gridmax['square'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -96,12 +97,12 @@ function make_class(gridtype, loadtype = 'new') {
             var space1 = parseInt(document.getElementById("nb_space1").value, 10);
             document.getElementById("nb_sudoku3_lb").style.display = "inline";
             document.getElementById("nb_sudoku3_lb").innerHTML = "*White space is subtracted from the Side size";
-            if (n0 <= 20 && n0 > 0 && space1 < n0) {
+            if (n0 <= gridmax['hex'] && n0 > 0 && space1 < n0) {
                 pu = new Puzzle_hex(n0, n0, size);
             } else {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Side Size must be in the range <h2 class="warn">1-20</h2>',
+                    html: 'Side Size must be in the range <h2 class="warn">1-' + gridmax['hex'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -112,12 +113,12 @@ function make_class(gridtype, loadtype = 'new') {
             var space1 = parseInt(document.getElementById("nb_space1").value, 10);
             document.getElementById("nb_sudoku3_lb").style.display = "inline";
             document.getElementById("nb_sudoku3_lb").innerHTML = "*White space is subtracted from the Side size";
-            if (n0 <= 20 && n0 > 0 && space1 < n0 / 3) {
+            if (n0 <= gridmax['tri'] && n0 > 0 && space1 < n0 / 3) {
                 pu = new Puzzle_tri(n0, n0, size);
             } else {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Side Size must be in the range <h2 class="warn">1-20</h2>',
+                    html: 'Side Size must be in the range <h2 class="warn">1-' + gridmax['tri'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -128,12 +129,12 @@ function make_class(gridtype, loadtype = 'new') {
             var space1 = parseInt(document.getElementById("nb_space1").value, 10);
             document.getElementById("nb_sudoku3_lb").style.display = "inline";
             document.getElementById("nb_sudoku3_lb").innerHTML = "*White space is subtracted from the Side size";
-            if (n0 <= 20 && n0 > 0 && space1 < n0 / 3) {
+            if (n0 <= gridmax['pyramid'] && n0 > 0 && space1 < n0 / 3) {
                 pu = new Puzzle_pyramid(n0, n0, size);
             } else {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Side Size must be in the range <h2 class="warn">1-20</h2>',
+                    html: 'Side Size must be in the range <h2 class="warn">1-' + gridmax['pyramid'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -141,12 +142,12 @@ function make_class(gridtype, loadtype = 'new') {
             break;
         case "iso":
             var n0 = parseInt(document.getElementById("nb_size1").value, 10);
-            if (n0 <= 20 && n0 > 0) {
+            if (n0 <= gridmax['cube'] && n0 > 0) {
                 pu = new Puzzle_iso(n0, n0, size);
             } else {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Side Size must be in the range <h2 class="warn">1-20</h2>',
+                    html: 'Side Size must be in the range <h2 class="warn">1-' + gridmax['iso'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -295,7 +296,7 @@ function make_class(gridtype, loadtype = 'new') {
             var nx = parseInt(document.getElementById("nb_size1").value, 10);
             var ny = parseInt(document.getElementById("nb_size2").value, 10);
 
-            if (nx <= 40 && nx > 0 && ny <= 40 && ny > 0) {
+            if (nx <= gridmax['square'] && nx > 0 && ny <= 40 && ny > 0) {
                 // Create Kakuro object
                 pu = new Puzzle_kakuro(nx, ny, size);
 
@@ -305,7 +306,7 @@ function make_class(gridtype, loadtype = 'new') {
             } else {
                 Swal.fire({
                     title: 'Swaroop says:',
-                    html: 'Rows/Columns Size must be in the range <h2 class="warn">1-40</h2>',
+                    html: 'Rows/Columns Size must be in the range <h2 class="warn">1-' + gridmax['kakuro'] + '</h2>',
                     icon: 'error',
                     confirmButtonText: 'ok 🙂',
                 })
@@ -701,21 +702,81 @@ function reloadcheck_onoff() {
 }
 
 function ResetCheck() {
-    if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() == "LINEE") {
-        Swal.fire({
-            title: 'Erase/Clear all EDGE mode elements?',
-            html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: Color.BLUE_SKY,
-            cancelButtonColor: Color.RED,
-            confirmButtonText: 'Yes, Erase it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                pu.reset_selectedmode();
-            }
-        })
-    } else if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() == "SYMBOL") {
+    if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() === "LINE") {
+        if (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === '4') {
+            Swal.fire({
+                title: 'Erase/Clear all Helper (x) - Crosses in Line Mode?',
+                html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: Color.BLUE_SKY,
+                cancelButtonColor: Color.RED,
+                confirmButtonText: 'Yes, Erase it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pu.reset_selectedmode();
+                }
+            })
+        } else {
+            Swal.fire({
+                title: 'Erase/Clear all LINE mode elements?',
+                html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: Color.BLUE_SKY,
+                cancelButtonColor: Color.RED,
+                confirmButtonText: 'Yes, Erase it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pu.reset_selectedmode();
+                }
+            })
+        }
+    } else if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() === "LINEE") {
+        if (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === '4') {
+            Swal.fire({
+                title: 'Erase/Clear all Helper (x) - Crosses in Edge Mode?',
+                html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: Color.BLUE_SKY,
+                cancelButtonColor: Color.RED,
+                confirmButtonText: 'Yes, Erase it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pu.reset_selectedmode();
+                }
+            })
+        } else if (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === '5') {
+            Swal.fire({
+                title: 'Reset Erased Edges in Edge Mode?',
+                html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: Color.BLUE_SKY,
+                cancelButtonColor: Color.RED,
+                confirmButtonText: 'Yes, Erase it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pu.reset_selectedmode();
+                }
+            })
+        } else {
+            Swal.fire({
+                title: 'Erase/Clear all EDGE mode elements?',
+                html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: Color.BLUE_SKY,
+                cancelButtonColor: Color.RED,
+                confirmButtonText: 'Yes, Erase it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    pu.reset_selectedmode();
+                }
+            })
+        }
+    } else if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() === "SYMBOL") {
         Swal.fire({
             title: 'Erase/Clear all SHAPE mode elements?',
             html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
@@ -729,7 +790,7 @@ function ResetCheck() {
                 pu.reset_selectedmode();
             }
         })
-    } else if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() == "CAGE") {
+    } else if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() === "CAGE") {
         Swal.fire({
             title: 'Erase/Clear all FRAME mode elements?',
             html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
@@ -743,20 +804,20 @@ function ResetCheck() {
                 pu.reset_selectedmode();
             }
         })
-    } else if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() == "COMBI") {
-        Swal.fire({
-            title: 'Erase/Clear all selected COMPOSITE mode elements?',
-            html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: Color.BLUE_SKY,
-            cancelButtonColor: Color.RED,
-            confirmButtonText: 'Yes, Erase it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                pu.reset_selectedmode();
-            }
-        })
+    } else if (pu.mode[pu.mode.qa].edit_mode.toUpperCase() === "COMBI") {
+        // Swal.fire({
+        //     title: 'Erase/Clear all selected COMPOSITE mode elements?',
+        //     html: '<h4 class="warn">You won\'t be able to revert this!</h4>',
+        //     icon: 'warning',
+        //     showCancelButton: true,
+        //     confirmButtonColor: Color.BLUE_SKY,
+        //     cancelButtonColor: Color.RED,
+        //     confirmButtonText: 'Yes, Erase it!'
+        // }).then((result) => {
+        //     if (result.isConfirmed) {
+        //         pu.reset_selectedmode();
+        //     }
+        // })
     } else {
         Swal.fire({
             title: 'Erase/Clear all ' + pu.mode[pu.mode.qa].edit_mode.toUpperCase() + ' mode elements?',
@@ -1161,7 +1222,7 @@ function load(urlParam) {
     }
 
     // Tab settings
-    if (rtext[6] !== 'undefined') {
+    if (typeof rtext[6] !== 'undefined') {
         this.usertab_choices = rtext[6];
     }
 
@@ -1184,6 +1245,56 @@ function load(urlParam) {
                 var t = pu[i][j].__a;
                 pu[i][j] = new Stack();
                 pu[i][j].set(t);
+            }
+        }
+
+        if (paramArray.l === "solvedup") { // Basically clone of solve mode when answer check is enabled
+            set_solvemode();
+
+            // Decrypt a
+            if (paramArray.a) {
+                var ab = atob(paramArray.a);
+                ab = Uint8Array.from(ab.split(""), e => e.charCodeAt(0));
+                var inflate = new Zlib.RawInflate(ab);
+                var plain = inflate.decompress();
+                var atext = new TextDecoder().decode(plain);
+                pu.solution = atext;
+                // Visually showcase answer check is enabled
+                document.getElementById("pu_a_label").style.backgroundColor = Color.GREEN_LIGHT_VERY;
+                document.getElementById("solution_check").innerHTML = "*Automatic answer checking is enabled";
+            }
+
+            if (rtext[7] !== "undefined") {
+                let starttime = rtext[7].split(":");
+                sw_timer.start({
+                    precision: 'secondTenths',
+                    startValues: {
+                        hours: parseInt(starttime[0]),
+                        minutes: parseInt(starttime[1]),
+                        seconds: parseInt(starttime[2]),
+                        secondTenths: parseInt(starttime[3])
+                    }
+                });
+            } else {
+                sw_timer.start({ precision: 'secondTenths' });
+            }
+
+            if (typeof rtext[8] !== 'undefined') {
+                // set the answer check settings
+                var settingstatus = document.getElementById("answersetting").getElementsByTagName("INPUT");
+                var answersetting = JSON.parse(rtext[8]);
+                for (var i = 0; i < settingstatus.length; i++) {
+                    settingstatus[i].checked = answersetting[settingstatus[i].id];
+                }
+            }
+        } else {
+            if (typeof rtext[7] !== 'undefined') {
+                // set the answer check settings
+                var settingstatus = document.getElementById("answersetting").getElementsByTagName("INPUT");
+                var answersetting = JSON.parse(rtext[7]);
+                for (var i = 0; i < settingstatus.length; i++) {
+                    settingstatus[i].checked = answersetting[settingstatus[i].id];
+                }
             }
         }
     } else if (paramArray.m === "solve") { //solve_mode
@@ -1217,39 +1328,17 @@ function load(urlParam) {
             pu.solution = atext;
             // Visually showcase answer check is enabled
             document.getElementById("pu_a_label").style.backgroundColor = Color.GREEN_LIGHT_VERY;
+            document.getElementById("solution_check").innerHTML = "*Automatic answer checking is enabled";
+        }
+        if (typeof rtext[7] !== 'undefined') {
+            // set the answer check settings
+            var settingstatus = document.getElementById("answersetting").getElementsByTagName("INPUT");
+            var answersetting = JSON.parse(rtext[7]);
+            for (var i = 0; i < settingstatus.length; i++) {
+                settingstatus[i].checked = answersetting[settingstatus[i].id];
+            }
         }
         sw_timer.start({ precision: 'secondTenths' });
-    }
-
-    if (paramArray.l === "solvedup") {
-        set_solvemode();
-
-        // Decrypt a
-        if (paramArray.a) {
-            var ab = atob(paramArray.a);
-            ab = Uint8Array.from(ab.split(""), e => e.charCodeAt(0));
-            var inflate = new Zlib.RawInflate(ab);
-            var plain = inflate.decompress();
-            var atext = new TextDecoder().decode(plain);
-            pu.solution = atext;
-            // Visually showcase answer check is enabled
-            document.getElementById("pu_a_label").style.backgroundColor = Color.GREEN_LIGHT_VERY;
-        }
-
-        if (rtext[7] !== "undefined") {
-            let starttime = rtext[7].split(":");
-            sw_timer.start({
-                precision: 'secondTenths',
-                startValues: {
-                    hours: parseInt(starttime[0]),
-                    minutes: parseInt(starttime[1]),
-                    seconds: parseInt(starttime[2]),
-                    secondTenths: parseInt(starttime[3])
-                }
-            });
-        } else {
-            sw_timer.start({ precision: 'secondTenths' });
-        }
     }
 
     document.getElementById("nb_grid" + pu.mode.grid[0]).checked = true;
