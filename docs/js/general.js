@@ -852,11 +852,8 @@ function DeleteCheck() {
         confirmButtonText: 'Yes, Erase it!'
     }).then((result) => {
         if (result.isConfirmed) {
-            pu.reset_board();
+            pu.reset_board(); // contains reset of undo/redo
             pu.redraw();
-            // reset undo/redo
-            pu.command_undo = new Stack();
-            pu.command_redo = new Stack();
         }
     })
 }
@@ -950,6 +947,11 @@ function savetext_edit() {
 
 function savetext_solve() {
     var text = pu.maketext_solve();
+    document.getElementById("savetextarea").value = text;
+}
+
+function savetext_comp() {
+    var text = pu.maketext_compsolve();
     document.getElementById("savetextarea").value = text;
 }
 
@@ -1198,6 +1200,11 @@ function load(urlParam) {
         document.getElementById("saveinforules").value = rtext_para[18].replace(/%2C/g, ',').replace(/%2D/g, '\n').replace(/%2E/g, '&').replace(/%2F/g, '=');
     }
 
+    // Border button status
+    if (rtext_para[19] && rtext_para[19] === "ON") {
+        document.getElementById('edge_button').textContent = "ON";
+    }
+
     pu.theta = parseInt(rtext_para[4]);
     pu.reflect[0] = parseInt(rtext_para[5]);
     pu.reflect[1] = parseInt(rtext_para[6]);
@@ -1337,6 +1344,18 @@ function load(urlParam) {
             for (var i = 0; i < settingstatus.length; i++) {
                 settingstatus[i].checked = answersetting[settingstatus[i].id];
             }
+        }
+        if (typeof rtext[8] !== 'undefined' && rtext[8].indexOf("comp") !== -1) { // Competitive mode
+            // Disable Share, Undo/Redo buttons, Clone, IO sudoku
+            document.getElementById("savetext").style.display = "none";
+            document.getElementById("duplicate").style.display = "none";
+            document.getElementById("input_sudoku").style.display = "none";
+            document.getElementById("tb_undo").style.display = "none";
+            document.getElementById("tb_redo").style.display = "none";
+            document.getElementById("tb_reset").style.display = "none";
+            document.getElementById("tb_delete").style.display = "none";
+            document.getElementById("mo_move_lb").style.display = "none";
+            pu.undoredo_disable = true;
         }
         sw_timer.start({ precision: 'secondTenths' });
     }
