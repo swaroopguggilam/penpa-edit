@@ -267,13 +267,14 @@ class Puzzle_square extends Puzzle {
                     case "linex":
                         type = [0, 2, 3];
                         break;
+                    case "edgex":
                     case "edgexoi":
+                    case "star":
                         type = [0, 1, 2, 3];
                         break;
                     case "blpo":
                     case "blwh":
                     case "battleship":
-                    case "star":
                     case "magnets":
                     case "lineox":
                     case "yajilin":
