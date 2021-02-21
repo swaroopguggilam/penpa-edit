@@ -230,7 +230,6 @@ onload = function() {
             }
 
             if (key === "Control") {
-                event.preventDefault();
                 ctrl_counter = ctrl_counter + 1;
             }
 
@@ -307,6 +306,40 @@ onload = function() {
 
             if (ctrl_key && !shift_key && !alt_key) {
                 if (key != "Control") {
+                    if (pu.mode[pu.mode.qa].edit_mode === "sudoku") {
+                        switch (code) {
+                            case "Digit0":
+                                key = "0";
+                                break;
+                            case "Digit1":
+                                key = "1";
+                                break;
+                            case "Digit2":
+                                key = "2";
+                                break;
+                            case "Digit3":
+                                key = "3";
+                                break;
+                            case "Digit4":
+                                key = "4";
+                                break;
+                            case "Digit5":
+                                key = "5";
+                                break;
+                            case "Digit6":
+                                key = "6";
+                                break;
+                            case "Digit7":
+                                key = "7";
+                                break;
+                            case "Digit8":
+                                key = "8";
+                                break;
+                            case "Digit9":
+                                key = "9";
+                                break;
+                        }
+                    }
                     switch (key) {
                         case "d": //Ctrl+d
                         case "D":
