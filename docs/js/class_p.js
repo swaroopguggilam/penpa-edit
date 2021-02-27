@@ -127,6 +127,7 @@ class Puzzle {
         this.solution = "";
         this.sol_flag = 0;
         this.undoredo_counter = 0;
+        this.loop_counter = false;
         this.rules = "";
         this.gridmax = { 'square': 60, 'hex': 20, 'tri': 20, 'pyramid': 20, 'cube': 20, 'kakuro': 60 }; // also defined in general.js
         this.replace = [
@@ -7836,6 +7837,7 @@ class Puzzle {
             }
             this.last = num;
             this.redraw();
+            this.loop_counter = true; // to ignore cross feature when loop is drawn on mobile (to avoid accidental crosses)
         }
     }
 
@@ -7854,7 +7856,8 @@ class Puzzle {
                     this.record("symbol", num);
                     delete this[this.mode.qa].symbol[num];
                 }
-            } else if (this.point[num].type === 2 || this.point[num].type === 3 || this.point[num].type === 4) {
+            } else if (!this.loop_counter &&
+                (this.point[num].type === 2 || this.point[num].type === 3 || this.point[num].type === 4)) {
                 if (!this[this.mode.qa].line[num]) { // Insert cross
                     this.record('line', num);
                     this[this.mode.qa].line[num] = 98;
@@ -7867,6 +7870,7 @@ class Puzzle {
         this.drawing_mode = -1;
         this.first = -1;
         this.last = -1;
+        this.loop_counter = false;
         this.redraw();
     }
 
