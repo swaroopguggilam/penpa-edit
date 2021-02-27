@@ -7833,11 +7833,11 @@ class Puzzle {
                     array = "line";
                     var key = (Math.min(num, this.last)).toString() + "," + (Math.max(num, this.last)).toString();
                     this.re_line(array, key, line_style);
+                    this.loop_counter = true; // to ignore cross feature when loop is drawn on mobile (to avoid accidental crosses)
                 }
             }
             this.last = num;
             this.redraw();
-            this.loop_counter = true; // to ignore cross feature when loop is drawn on mobile (to avoid accidental crosses)
         }
     }
 
