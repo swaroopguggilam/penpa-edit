@@ -68,7 +68,12 @@ onload = function() {
             var event = e.changedTouches[0];
             e.preventDefault(); // When both mouse and touch start, only touch
         }
-        var obj = coord_point(event);
+        if (ondown_key === "mousedown" && (pu.mode[pu.mode.qa].edit_mode === "combi") &&
+            (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "yajilin")) {
+            var obj = coord_point(event, 'flex');
+        } else {
+            var obj = coord_point(event);
+        }
         var x = obj.x,
             y = obj.y,
             num = obj.num;
@@ -86,7 +91,12 @@ onload = function() {
         if (event.buttons === 2) { // Right click and moving
             var obj = coord_point(event, 'flex');
         } else {
-            var obj = coord_point(event);
+            if ((pu.mode[pu.mode.qa].edit_mode === "combi") &&
+                (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "yajilin")) {
+                var obj = coord_point(event, 'flex');
+            } else {
+                var obj = coord_point(event);
+            }
         }
         var x = obj.x,
             y = obj.y,
@@ -113,15 +123,15 @@ onload = function() {
 
     // Variables for Tab selector
     let modes = ["Surface", "Wall", "Shape", "Composite",
-        "Line Normal", "Line Diagonal", "Line Middle", "Line Helper",
-        "Edge Normal", "Edge Diagonal", "Edge Helper",
+        "Line Normal", "Line Diagonal", "Line Free", "Line Middle", "Line Helper",
+        "Edge Normal", "Edge Diagonal", "Edge Free", "Edge Helper",
         "Number Normal", "Number L", "Number M", "Number S", "Candidates", "Number 1/4", "Number Side",
         "Sudoku Normal", "Sudoku Corner", "Sudoku Centre"
     ];
 
     let modes_mapping = ["surface", "wall", "symbol", "combi",
-        "sub_line1", "sub_line2", "sub_line5", "sub_line4",
-        "sub_lineE1", "sub_lineE2", "sub_lineE4",
+        "sub_line1", "sub_line2", "sub_line3", "sub_line5", "sub_line4",
+        "sub_lineE1", "sub_lineE2", "sub_lineE3", "sub_lineE4",
         "sub_number1", "sub_number10", "sub_number6", "sub_number5", "sub_number7", "sub_number3", "sub_number9",
         "sub_sudoku1", "sub_sudoku2", "sub_sudoku3"
     ];
@@ -581,11 +591,13 @@ onload = function() {
         //const startTime = performance.now();
 
         // Improving starbattle composite mode, left click
-        if ((fittype === 'flex') &&
-            (pu.mode[pu.mode.qa].edit_mode === "combi") &&
-            (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "star")) {
-            type = pu.type;
-            pu.type = [0];
+        if (fittype === 'flex') {
+            if ((pu.mode[pu.mode.qa].edit_mode === "combi") &&
+                ((pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "star") ||
+                    (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "yajilin"))) {
+                type = pu.type;
+                pu.type = [0];
+            }
         }
 
         for (var i = 0; i < pu.point.length; i++) {
@@ -599,10 +611,12 @@ onload = function() {
         }
 
         // resetting the type for starbattle composite mode
-        if ((fittype === 'flex') &&
-            (pu.mode[pu.mode.qa].edit_mode === "combi") &&
-            (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "star")) {
-            pu.type = type;
+        if (fittype === 'flex') {
+            if ((pu.mode[pu.mode.qa].edit_mode === "combi") &&
+                ((pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "star") ||
+                    (pu.mode[pu.mode.qa][pu.mode[pu.mode.qa].edit_mode][0] === "yajilin"))) {
+                pu.type = type;
+            }
         }
 
         //const endTime = performance.now();
