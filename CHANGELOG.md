@@ -1,7 +1,16 @@
 ## History
-* 2021/02/** ver2.25.5
+* 2021/03/** ver2.25.7
+	* Warning message for URL too long.
+	* Automatic closing of window after generating URL/gmpuzzle output text.
+	* Introducing custom colors for some modes (Surface, Line, Edge, Wall, Special, Frame - Eventually for everything else).
+* 2021/02/28 ver2.25.6
+	* light bulbs for akari (Shape -> Special2 -> Sun, Moon, Bulb).
+	* Added light bulb to solution check option.
+	* Added Ignore Edges option to Solution Check (useful for araf, pentominous type of puzzles).
+* 2021/02/26 ver2.25.5
 	* Added 4x4 sudoku support (for kids in the school)
 	* Cross Helper feature added to Yajilin Composite Mode (Right click on Edges)
+	* Settings button, Dark Theme
 * 2021/02/21 ver2.25.4
 	* Added "Edge Free" and "Line Free" to tab settings.
 	* Made some improvements to "URL for contests".

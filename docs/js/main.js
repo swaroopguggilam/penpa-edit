@@ -773,6 +773,10 @@ onload = function() {
                 i_url();
                 e.preventDefault();
                 break;
+            case "page_settings":
+                p_settings();
+                e.preventDefault();
+                break;
             case "tb_undo":
                 pu.undo();
                 e.preventDefault();
@@ -1305,6 +1309,32 @@ onload = function() {
                 break;
             case "nb_margin2_lb":
                 document.getElementById("nb_margin2").checked = true;
+                e.preventDefault();
+                break;
+                // theme setting
+            case "light_mode_lb":
+                document.getElementById("light_mode").checked = true;
+                document.getElementById("color_theme").href = "./css/light_theme.css";
+                pu.set_redoundocolor();
+                pu.redraw();
+                e.preventDefault();
+                break;
+            case "dark_mode_lb":
+                document.getElementById("dark_mode").checked = true;
+                document.getElementById("color_theme").href = "./css/dark_theme.css";
+                pu.set_redoundocolor();
+                pu.redraw();
+                e.preventDefault();
+                break;
+                // custom color
+            case "custom_color_yes_lb":
+                document.getElementById("custom_color_yes").checked = true;
+                pu.redraw();
+                e.preventDefault();
+                break;
+            case "custom_color_no_lb":
+                document.getElementById("custom_color_no").checked = true;
+                pu.redraw();
                 e.preventDefault();
                 break;
             case "saveimagename":
